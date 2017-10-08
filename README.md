@@ -136,4 +136,3 @@ dictionary.clear();
 ## Whats next?
 Have fun and feel free to use, comment, request, and contribute.
 I'll keep adding stuff from time to time
-"# turbine" 
