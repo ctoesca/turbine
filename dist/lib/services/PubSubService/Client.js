@@ -10,9 +10,7 @@ class Client extends TeventDispatcher_1.TeventDispatcher {
         this.ip = null;
         this.DBClient = null;
         this.useSockjs = false;
-        this.logger = null;
         this.conn = null;
-        this.server = null;
         if (typeof opt.useSockjs != "undefined")
             this.useSockjs = opt.useSockjs;
         this.lastActivityDate = new Date().getTime();
@@ -20,9 +18,7 @@ class Client extends TeventDispatcher_1.TeventDispatcher {
             Client.lastIntanceId = 0;
         Client.lastIntanceId++;
         this.instanceId = Client.lastIntanceId;
-        if (typeof Client.logger == "undefined")
-            Client.logger = app.getLogger("Client");
-        this.logger = Client.logger;
+        this.logger = app.getLogger(this.constructor.name);
         this.conn = conn;
         this.server = server;
         if (this.useSockjs)
@@ -34,10 +30,11 @@ class Client extends TeventDispatcher_1.TeventDispatcher {
     }
     flatify() {
         return new Promise(function (resolve, reject) {
-            var r = {};
-            r.client = this.DBClient;
-            r.connId = null;
-            r.lastActivityDate = this.lastActivityDate;
+            var r = {
+                client: this.DBClient,
+                connId: null,
+                lastActivityDate: this.lastActivityDate
+            };
             if (this.conn != null)
                 r.connId = this.conn.id;
             resolve(r);
@@ -323,6 +320,5 @@ class Client extends TeventDispatcher_1.TeventDispatcher {
     }
 }
 Client.lastIntanceId = null;
-Client.logger = null;
 exports.Client = Client;
 //# sourceMappingURL=Client.js.map

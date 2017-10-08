@@ -1,13 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const TbaseService_1 = require("../TbaseService");
-const bodyParser = require("body-parser");
 const express = require("express");
+const bodyParser = require("body-parser");
 class TredisHttp extends TbaseService_1.TbaseService {
     constructor(name, server, config) {
         super(name, config);
         this.clients = {};
-        this.httpServer = null;
         this.httpServer = server;
     }
     start() {

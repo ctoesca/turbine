@@ -1,1 +1,1 @@
-{"version":3,"file":"Message.js","sourceRoot":"","sources":["../../../../src/lib/services/PubSubService/Message.ts"],"names":[],"mappings":";;AACA,oEAA+D;AAE/D,aAAqB,SAAQ,mCAAgB;IAE5C;QACC,KAAK,EAAE,CAAC;QAFT,OAAE,GAAG,IAAI,CAAA;IAGT,CAAC;CACD;AALD,0BAKC"}
+{"version":3,"file":"Message.js","sourceRoot":"","sources":["../../../../src/lib/services/PubSubService/Message.ts"],"names":[],"mappings":";;AAAA,oEAAiE;AAEjE,aAAqB,SAAQ,mCAAgB;IAEzC;QACI,KAAK,EAAE,CAAC;QACR,IAAI,CAAC,EAAE,GAAG,IAAI,CAAC;IACnB,CAAC;CACJ;AAND,0BAMC"}

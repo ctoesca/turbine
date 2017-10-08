@@ -1,7 +1,5 @@
-/// <reference types="bluebird" />
 import { TbaseService } from '../TbaseService.js';
 import { Ttimer } from '../../tools/Ttimer.js';
-import Promise = require("bluebird");
 export declare class TjobScheduler extends TbaseService {
     schedules: {};
     refreshTimer: Ttimer;
@@ -21,10 +19,10 @@ export declare class TjobScheduler extends TbaseService {
         "taskNameFunction": (schedule: any) => any;
         "workDir": string;
     };
-    flatify(): Promise<{}>;
-    getSchedules(): Promise<{}>;
+    flatify(): any;
+    getSchedules(): any;
     getTaskName(schedule: any): any;
-    scheduleAllJobs(): Promise<{}>;
+    scheduleAllJobs(): any;
     start(): void;
     stop(): void;
     execBatch(scheduleItem: any): void;

@@ -1,2 +1,1 @@
-import { TclientsCleaner } from './TclientsCleaner';
-export { TclientsCleaner };
+export { TclientsCleaner } from './TclientsCleaner';

@@ -1,19 +1,18 @@
 /// <reference types="express" />
-/// <reference types="bluebird" />
 import { TbaseService } from '../TbaseService.js';
 import express = require('express');
-import Promise = require("bluebird");
 export declare class ThttpServer extends TbaseService {
     app: express.Application;
+    server: any;
     constructor(name: any, config: any);
     setupSessions(): void;
     start(): void;
     setErrorsHandlers(): void;
     listen(): void;
     use(path: any, app: any): void;
-    createServer(): Promise<{}>;
+    createServer(): any;
     ipIsAllowed(ip: any): boolean;
-    authRequest(req: express.Request, res: express.Response, next: any): any;
+    authRequest(req: express.Request, res: express.Response, next: express.NextFunction): void;
     getDefaultConfig(): {
         "executionPolicy": string;
         "http-access-log": {

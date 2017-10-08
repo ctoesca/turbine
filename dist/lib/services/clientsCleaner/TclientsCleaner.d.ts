@@ -1,5 +1,3 @@
-/// <reference types="bluebird" />
-import Promise = require("bluebird");
 import { TbaseService } from '../TbaseService';
 import { Ttimer } from '../../tools/Ttimer';
 export declare class TclientsCleaner extends TbaseService {
@@ -11,7 +9,7 @@ export declare class TclientsCleaner extends TbaseService {
         "cleanInterval": number;
         "clientsTimeout": number;
     };
-    flatify(): Promise<{}>;
+    flatify(): any;
     start(): void;
     stop(): void;
     onTimer(): void;

@@ -2,14 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const TbaseService_js_1 = require("../TbaseService.js");
 const Ttimer_js_1 = require("../../tools/Ttimer.js");
-const cron = require("cron");
-const request = require("request");
 const Promise = require("bluebird");
+const request = require("request");
+const cron = require("cron");
 class TjobScheduler extends TbaseService_js_1.TbaseService {
     constructor(name, config) {
         super(name, config);
-        this.schedules = {};
-        this.refreshTimer = null;
         this.refreshTimer = new Ttimer_js_1.Ttimer({ delay: this.config.refreshInterval * 1000 });
         this.refreshTimer.on(Ttimer_js_1.Ttimer.ON_TIMER, this.onRefreshTimer, this);
     }

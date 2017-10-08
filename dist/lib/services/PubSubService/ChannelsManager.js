@@ -1,14 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const TeventDispatcher_1 = require("../../events/TeventDispatcher");
-const Channel_1 = require("./Channel");
 const Promise = require("bluebird");
+const Channel_1 = require("./Channel");
 class ChannelsManager extends TeventDispatcher_1.TeventDispatcher {
     constructor(pubSubServer) {
         super();
-        this.pubSubServer = null;
         this._channels = {};
-        this.logger = null;
         this.pubSubServer = pubSubServer;
         this.logger = app.getLogger("ChannelsManager");
     }

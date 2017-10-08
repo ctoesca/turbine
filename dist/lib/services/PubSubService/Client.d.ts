@@ -1,6 +1,5 @@
-/// <reference types="bluebird" />
 import { TeventDispatcher } from '../../events/TeventDispatcher';
-import Promise = require("bluebird");
+import { PubSubServer } from './PubSubServer';
 export declare class Client extends TeventDispatcher {
     id: string;
     ip: string;
@@ -10,11 +9,10 @@ export declare class Client extends TeventDispatcher {
     instanceId: number;
     logger: any;
     conn: any;
-    server: any;
+    server: PubSubServer;
     static lastIntanceId: any;
-    static logger: any;
-    constructor(server: any, conn: any, opt: any);
-    flatify(): Promise<{}>;
+    constructor(server: PubSubServer, conn: any, opt: any);
+    flatify(): any;
     getShortId(): any;
     getUserName(): any;
     getConnId(): any;

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tools = require("../../tools");
 const Ttimer_1 = require("../../tools/Ttimer");
 const TwindowsServiceManager_1 = require("../../tools/TwindowsServiceManager");
+const tools = require("../../tools");
 const TbaseService_1 = require("../TbaseService");
 const Promise = require("bluebird");
 const child_process = require("child_process");
@@ -54,6 +54,8 @@ class TredisMonitoring extends TbaseService_1.TbaseService {
                 type: parts[2].trim(),
                 state: parts[7].trim(),
                 timestamp: parts[5].trim(),
+                failed: true,
+                port: null
             };
             item.failed = (item.type.toLowerCase().indexOf("fail") >= 0);
             item.port = item.host.split(":")[1];

@@ -6,14 +6,10 @@ const Promise = require("bluebird");
 class Subscription extends TeventDispatcher_1.TeventDispatcher {
     constructor(channelName, client) {
         super();
-        this.id = null;
-        this._queue = null;
-        this.logger = null;
         this.notifySubscribeEvents = false;
         this.channelName = null;
         this.noClientTimeout = 120000;
         this.clientDestroyTimestamp = null;
-        this.client = null;
         this.setClient(client);
         this.channelName = channelName;
         this.id = this.channelName + "_" + this.client.id;

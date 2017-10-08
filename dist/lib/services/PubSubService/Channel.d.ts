@@ -1,4 +1,3 @@
-/// <reference types="bluebird" />
 import { TeventDispatcher } from '../../events/TeventDispatcher';
 import Promise = require("bluebird");
 import { Tevent } from '../../events/Tevent';

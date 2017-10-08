@@ -1,20 +1,21 @@
 /// <reference types="express" />
-/// <reference types="bluebird" />
 import { Ttimer } from '../../tools/Ttimer';
 import { Tevent } from '../../events/Tevent';
 import { TbaseService } from '../TbaseService';
 import { ChannelsManager } from './ChannelsManager';
+import { Client } from "./Client";
+import { ThttpServer } from '../HttpServer/ThttpServer';
+import express = require("express");
 import Promise = require("bluebird");
-import express = require('express');
 export declare class PubSubServer extends TbaseService {
     clients: any[];
     websocketServer: any;
-    httpServer: any;
+    httpServer: ThttpServer;
     app: express.Application;
     cleanClientsTimer: Ttimer;
     cleanClusterClientsTimer: Ttimer;
     _channelsManager: ChannelsManager;
-    constructor(name: string, server: any, config: any);
+    constructor(name: any, server: any, config: any);
     getDefaultConfig(): {
         "active": boolean;
         "apiPath": string;
@@ -29,15 +30,15 @@ export declare class PubSubServer extends TbaseService {
     onIsMasterChanged(e: Tevent): void;
     flatify(): Promise<{}>;
     getClusterConnexions(): Promise<{}>;
-    onSockLog(severity: string, message: string): void;
+    onSockLog(severity: string, message: any): void;
     getChannelsManager(): ChannelsManager;
     sendChannelEvent(type: string, channelName: string, DBClient: any): void;
     onCleanClusterClientsTimer(): void;
-    removeMessagesQueues(): any;
+    removeMessagesQueues(): Promise<{}>;
     onCleanClientsTimer(evt: Tevent): void;
-    eachClient(callback: (client) => void): void;
-    removeClient(client: any): number;
-    getUserSession(sid: any): any;
+    eachClient(callback: any): void;
+    removeClient(client: Client): number;
+    getUserSession(sid: string): Promise<{}>;
     onConnection(conn: any, req: express.Request): void;
     onDestroyClient(e: Tevent): void;
     onCloseClient(e: Tevent): void;
@@ -45,10 +46,10 @@ export declare class PubSubServer extends TbaseService {
     getClientsByUsername(username: string): any[];
     onRedisPubSubMessage(channel: string, data: any): void;
     broadcast(messages: any, exclude?: any): void;
-    sendToUsers(userNames: any, messages: any): void;
+    sendToUsers(userNames: string[], messages: any): void;
     sendMessagesToLocalUsersNames(userNames: any, messages: any): void;
     sendMessagesToLocalClients(clientsId: any, messages: any): void;
-    disconnectClient(id: any): void;
-    processBeforeRequest(req: any, res: any, log: any): boolean;
+    disconnectClient(id: string): void;
+    processBeforeRequest(req: express.Request, res: express.Response, next: express.NextFunction): boolean;
     initRoutes(): void;
 }

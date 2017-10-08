@@ -4,17 +4,19 @@ const TbaseService_js_1 = require("../TbaseService.js");
 const exceptions = require("../../exceptions");
 const tools = require("../../tools");
 const express = require("express");
+const Promise = require("bluebird");
 const http = require("http");
 const rfs = require("rotating-file-stream");
 const morgan = require("morgan");
 const auth = require("basic-auth");
 const pem = require("pem");
-const Promise = require("bluebird");
 const https = require("https");
+const expressSession = require("express-session");
+const connectRedis = require("connect-redis");
 class ThttpServer extends TbaseService_js_1.TbaseService {
     constructor(name, config) {
         super(name, config);
-        this.app = null;
+        this.server = null;
         if (this.config.auth == null)
             this.logger.warn("Basic auth désactivé");
         else
@@ -29,8 +31,8 @@ class ThttpServer extends TbaseService_js_1.TbaseService {
         this.app.set('trust proxy', 1);
     }
     setupSessions() {
-        var session = require('express-session');
-        var sessionStoreModule = require('connect-redis-cluster')(session);
+        var session = expressSession;
+        var sessionStoreModule = connectRedis(session);
         var storeOptions = {};
         if (this.config.session.storeOptions)
             storeOptions = this.config.session.storeOptions;
@@ -114,16 +116,16 @@ class ThttpServer extends TbaseService_js_1.TbaseService {
     }
     listen() {
         tools.checkPort(this.config.bindAddress, this.config.port).then(function (result) {
-            this.server.listen(this.config.port, function () {
+            this.server.listen(this.config.port, () => {
                 this.logger.info("API Server started listening on " + this.config.bindAddress + ":" + this.config.port);
-            }.bind(this));
+            });
         }.bind(this));
     }
     use(path, app) {
         this.app.use(path, app);
     }
     createServer() {
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             if (!this.config.https.enabled) {
                 this.server = http.createServer(this.app);
                 resolve(this.server);
@@ -134,7 +136,7 @@ class ThttpServer extends TbaseService_js_1.TbaseService {
                         pathOpenSSL: this.config.https.pathOpenSSL
                     });
                 }
-                pem.createCertificate(this.config.https, function (err, keys) {
+                pem.createCertificate(this.config.https, (err, keys) => {
                     if (err) {
                         this.logger.error(err, "createCertificate");
                         reject(err);
@@ -146,9 +148,9 @@ class ThttpServer extends TbaseService_js_1.TbaseService {
                         this.server = https.createServer(credentials, this.app);
                         resolve(this.server);
                     }
-                }.bind(this));
+                });
             }
-        }.bind(this));
+        });
     }
     ipIsAllowed(ip) {
         if (this.config.allowedIp == null)

@@ -2,24 +2,19 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Ttimer_1 = require("../../tools/Ttimer");
 const TbaseService_1 = require("../TbaseService");
-const Client_1 = require("./Client");
 const ChannelsManager_1 = require("./ChannelsManager");
+const Client_1 = require("./Client");
 const uuid = require("node-uuid");
 const ws = require("ws");
 const sockjs = require("sockjs");
-const Promise = require("bluebird");
 const express = require("express");
 const bodyParser = require("body-parser");
+const Promise = require("bluebird");
 class PubSubServer extends TbaseService_1.TbaseService {
     constructor(name, server, config) {
         super(name, config);
         this.clients = [];
         this.websocketServer = null;
-        this.httpServer = null;
-        this.app = null;
-        this.cleanClientsTimer = null;
-        this.cleanClusterClientsTimer = null;
-        this._channelsManager = null;
         this.httpServer = server;
         this.app = express();
         this.app.use(bodyParser.json({
@@ -102,7 +97,10 @@ class PubSubServer extends TbaseService_1.TbaseService {
     }
     flatify() {
         return new Promise(function (resolve, reject) {
-            var r = {};
+            var r = {
+                _channelsManager: null,
+                clusterConnexions: null
+            };
             this._channelsManager.flatify()
                 .then(function (result) {
                 r._channelsManager = result;
@@ -325,7 +323,7 @@ class PubSubServer extends TbaseService_1.TbaseService {
                 var parts = cookie.split('=');
                 cookies[parts.shift().trim()] = decodeURI(parts[0]);
             });
-            this.getUserSession(cookies.ctop).then(function (session) {
+            this.getUserSession(cookies["ctop"]).then(function (session) {
                 var username = null;
                 if ((session != null) && (session.user_name))
                     username = session.user_name;
@@ -455,13 +453,13 @@ class PubSubServer extends TbaseService_1.TbaseService {
             client.disconnect();
         }
     }
-    processBeforeRequest(req, res, log) {
+    processBeforeRequest(req, res, next) {
         return true;
     }
     initRoutes() {
-        this.app.post('/topics/sendMessageToUsers', function (req, res) {
+        this.app.post('/topics/sendMessageToUsers', (req, res, next) => {
             this.logger.debug("sendMessageToUsers");
-            if (!this.processBeforeRequest(req, res))
+            if (!this.processBeforeRequest(req, res, next))
                 return;
             var messages = req.body;
             var type = 'user_message';
@@ -475,50 +473,50 @@ class PubSubServer extends TbaseService_1.TbaseService {
                 };
                 this.sendToUsers(data.userNames, data.messages);
             }
-            res.status("201").send(messages);
-        }.bind(this));
-        this.app.post('/topics/publish', function (req, res) {
-            if (!this.processBeforeRequest(req, res))
+            res.status(201).send(messages);
+        });
+        this.app.post('/topics/publish', (req, res, next) => {
+            if (!this.processBeforeRequest(req, res, next))
                 return;
             var type = 'publish';
             var messages = req.body;
             for (var i = 0; i < messages.length; i++)
                 messages[i].type = "publish";
             this.broadcast(messages);
-            res.status("200").send(messages);
-        }.bind(this));
-        this.app.get('/check', function (req, res) {
-            if (!this.processBeforeRequest(req, res))
+            res.status(200).send(messages);
+        });
+        this.app.get('/check', (req, res, next) => {
+            if (!this.processBeforeRequest(req, res, next))
                 return;
             res.status(200).send({
                 exitCode: 0,
                 message: "OK"
             });
-        }.bind(this));
-        this.app.get('/stat', function (req, res) {
-            if (!this.processBeforeRequest(req, res))
+        });
+        this.app.get('/stat', (req, res, next) => {
+            if (!this.processBeforeRequest(req, res, next))
                 return;
-            res.status("200").send({});
-        }.bind(this));
-        this.app.get('/getJson', function (req, res, next) {
-            if (!req.session) {
+            res.status(200).send({});
+        });
+        this.app.get('/getJson', (req, res, next) => {
+            if (!req["session"]) {
                 return next(new Error('oh no'));
             }
-            if (!this.processBeforeRequest(req, res))
+            if (!this.processBeforeRequest(req, res, next))
                 return;
             this.flatify().then(function (result) {
                 res.status(200).send(result);
             });
-        }.bind(this));
-        this.app.get('/getClusterConnexions', function (req, res) {
-            if (!this.processBeforeRequest(req, res))
+        });
+        this.app.get('/getClusterConnexions', (req, res, next) => {
+            if (!this.processBeforeRequest(req, res, next))
                 return;
             this.getClusterConnexions().then(function (result) {
                 res.status(200).send(result);
             }, function (err) {
                 res.status(500).send(err.toString());
             });
-        }.bind(this));
+        });
     }
 }
 exports.PubSubServer = PubSubServer;

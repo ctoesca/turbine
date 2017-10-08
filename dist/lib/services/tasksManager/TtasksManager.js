@@ -1,19 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Tevent_1 = require("../../events/Tevent");
 const TbaseService_1 = require("../TbaseService");
 const Ttimer_1 = require("../../tools/Ttimer");
 const tools = require("../../tools");
-const fs = require("fs");
+const Tevent_1 = require("../../events/Tevent");
+const uuid = require("uuid");
 const child_process = require("child_process");
-const request = require("request");
-const uuid = require("node-uuid");
-const bodyParser = require("body-parser");
 const express = require("express");
+const fs = require("fs");
+const bodyParser = require("body-parser");
+const request = require("request");
 class TtasksManager extends TbaseService_1.TbaseService {
     constructor(name, server, config) {
         super(name, config);
-        this.httpServer = null;
         this.runningTasks = {};
         this.runningProcesses = {};
         this.httpServer = server;

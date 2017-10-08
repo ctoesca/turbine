@@ -1,9 +1,10 @@
 /// <reference types="express" />
 import { TbaseService } from '../TbaseService';
 import { Ttimer } from '../../tools/Ttimer';
+import { ThttpServer } from '../HttpServer/ThttpServer';
 import express = require('express');
 export declare class TtasksManager extends TbaseService {
-    httpServer: any;
+    httpServer: ThttpServer;
     runningTasks: {};
     runningTasksDir: string;
     runningProcesses: {};
@@ -23,15 +24,15 @@ export declare class TtasksManager extends TbaseService {
     execTask(task: any, endCallback?: any): any;
     searchTask(f: any): any;
     killTask(id: string): void;
-    fileExists(path: any): boolean;
-    removeTask(id: any): void;
+    fileExists(path: string): boolean;
+    removeTask(id: string): void;
     saveTask(task: any): void;
     loadTasks(): void;
-    pidIsRunning(pid: any): boolean | void;
-    getRunningTaskByPID(pid: any): any;
-    getRunningTaskByID(id: any): any;
+    pidIsRunning(pid: number): boolean | void;
+    getRunningTaskByPID(pid: number): any;
+    getRunningTaskByID(id: string): any;
     checkTasks(): void;
-    sendCallback(task: any, eventName: any, callback: any): void;
+    sendCallback(task: any, eventName: string, callback: any): void;
     onRefreshTimer(): void;
     _startTask(req: express.Request, res: express.Response): void;
     _startTaskSync(req: express.Request, res: express.Response): void;

@@ -6,11 +6,11 @@ const Subscription_1 = require("./Subscription");
 class Channel extends TeventDispatcher_1.TeventDispatcher {
     constructor(name, pubSubServer) {
         super();
-        this.pubSubServer = null;
         this.maxStoredMessages = 100;
-        this.redisKey = "subscriptions";
         this.subscriptions = [];
-        this.logger = null;
+        this.name = name;
+        this.pubSubServer = pubSubServer;
+        this.redisKey = "subscriptions";
         this.logger = app.getLogger("Channel");
         this.logger.debug("Channel created: " + name);
     }
@@ -36,9 +36,11 @@ class Channel extends TeventDispatcher_1.TeventDispatcher {
     }
     flatify() {
         return new Promise(function (resolve, reject) {
-            var r = {};
-            r.name = this.name;
-            r.subscriptions = [];
+            var r = {
+                name: this.name,
+                subscriptions: [],
+                clients: {}
+            };
             this.getClients().then(function (result) {
                 r.clients = result;
                 resolve(r);

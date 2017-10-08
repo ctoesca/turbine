@@ -1,13 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs = require('fs');
 const Promise = require("bluebird");
 const TbaseService_1 = require("../TbaseService");
 const Ttimer_1 = require("../../tools/Ttimer");
 class TclientsCleaner extends TbaseService_1.TbaseService {
     constructor(name, config) {
         super(name, config);
-        this.timer = null;
         this.timer = new Ttimer_1.Ttimer({ delay: this.config.cleanInterval * 1000 });
         this.timer.on(Ttimer_1.Ttimer.ON_TIMER, this.onTimer.bind(this), this);
     }
@@ -40,7 +38,7 @@ class TclientsCleaner extends TbaseService_1.TbaseService {
         this.logger.debug("TclientsCleaner.onTimer");
         var now = Math.round(new Date().getTime() / 1000);
         var from = now - this.config.clientsTimeout;
-        var r = ClusterManager.getClient().hgetall("clients", function (err, result) {
+        var r = app.ClusterManager.getClient().hgetall("clients", function (err, result) {
             if (err) {
                 this.logger.error("TclientsCleaner", err);
             }
@@ -50,11 +48,11 @@ class TclientsCleaner extends TbaseService_1.TbaseService {
                         var client = JSON.parse(result[k]);
                         if (client.last_use < from) {
                             this.logger.info("TclientsCleaner: Supression client " + k);
-                            ClusterManager.getClient().hdel("clients", k);
+                            app.ClusterManager.getClient().hdel("clients", k);
                         }
                     }
                     catch (err) {
-                        ClusterManager.getClient().hdel("clients", k);
+                        app.ClusterManager.getClient().hdel("clients", k);
                     }
                 }
             }

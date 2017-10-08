@@ -6,9 +6,7 @@ const Promise = require("bluebird");
 class Queue extends TeventDispatcher_1.TeventDispatcher {
     constructor(subscription) {
         super();
-        this.subscription = null;
         this.messages = [];
-        this.logger = null;
         this.subscription = subscription;
         this.logger = app.getLogger("Queue");
     }

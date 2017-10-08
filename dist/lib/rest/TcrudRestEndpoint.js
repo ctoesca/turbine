@@ -42,7 +42,6 @@ class TcrudRestEndpoint extends TrestEndpoint_1.TrestEndpoint {
             searchFields: req.query.searchFields
         };
         this.getService(req).search(opt).then((result) => {
-            console.log("ok");
             this.setXTime(res, startTime);
             this.sendResponse(req, res, next, result);
         })
