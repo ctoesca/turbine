@@ -9,6 +9,7 @@ class TlogManager extends TeventDispatcher_1.TeventDispatcher {
     constructor(config) {
         super();
         this.config = null;
+        this._loggers = {};
         this.logsConfig = null;
         this.config = config;
     }

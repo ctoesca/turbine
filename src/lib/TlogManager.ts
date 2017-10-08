@@ -7,7 +7,7 @@ import utils = require('./tools');
 export class TlogManager extends TeventDispatcher {
 
     config: any = null;
-    _loggers: {};
+    _loggers = {};
     logsConfig: any = null;
 
     constructor(config) {

@@ -6,6 +6,8 @@ const Promise = require("bluebird");
 class Tworker extends TeventDispatcher_1.TeventDispatcher {
     constructor(config) {
         super();
+        this.services = [];
+        this.config = config;
         this.logManager = new TlogManager_1.TlogManager(this.config.logs);
         this.logger = this.getLogger("Tworker");
         global.logger = this.getLogger("main");

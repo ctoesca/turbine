@@ -9,12 +9,13 @@ declare var app
 
 export class Tworker extends TeventDispatcher {
     config: any;
-    services: TbaseService[];
+    services: TbaseService[] = [];
     logManager: TlogManager;
     logger: any;
     constructor(config) {
         super();
 
+        this.config = config
         this.logManager = new TlogManager(this.config.logs);
         this.logger = this.getLogger("Tworker");
         global.logger = this.getLogger("main");
