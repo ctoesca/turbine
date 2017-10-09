@@ -1,4 +1,5 @@
 /// <reference types="express" />
+/// <reference types="bluebird" />
 import { Ttimer } from '../../tools/Ttimer';
 import { Tevent } from '../../events/Tevent';
 import { TbaseService } from '../TbaseService';

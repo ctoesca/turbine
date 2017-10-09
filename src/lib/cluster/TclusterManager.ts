@@ -1,6 +1,6 @@
 import { TeventDispatcher } from '../events/TeventDispatcher';
 import { Tevent } from '../events/Tevent';
-
+import { IclusterManager } from './IclusterManager';
 import { Ttimer } from '../tools/Ttimer';
 import cluster = require("cluster");
 import uuid = require("uuid");
@@ -8,7 +8,7 @@ import os = require("os");
 import Redis = require("ioredis");
 import FakeRedis = require("fakeredis")
 
-export class TclusterManager extends TeventDispatcher {
+export class TclusterManager  extends TeventDispatcher implements IclusterManager {
 
     config: any;
     redisErrors: number = 0;
@@ -39,10 +39,15 @@ export class TclusterManager extends TeventDispatcher {
         };
         Redis.Promise.onPossiblyUnhandledRejection(this.onPossiblyUnhandledRejection.bind(this));
     }
-    get isClusterMaster() {
+
+    get isMasterProcess(): boolean{
+      return cluster.isMaster
+    }
+
+    get isClusterMaster(): boolean {
         return this.workerInfos.isClusterMaster;
     }
-    get isServerMaster() {
+    get isServerMaster(): boolean {
         return this.workerInfos.isServerMaster;
     }
     onPossiblyUnhandledRejection(error) {

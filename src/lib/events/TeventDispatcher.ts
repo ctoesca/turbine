@@ -2,8 +2,8 @@ import { Tevent } from './Tevent';
 
 export class TeventDispatcher {
 
-    protected _listeners: {} = {};
-    protected _isDestroyed: boolean = false;
+    private _listeners: {} = {};
+    private _isDestroyed: boolean = false;
 
     constructor(args = null) {
     }

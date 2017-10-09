@@ -1,13 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const TeventDispatcher_1 = require("./events/TeventDispatcher");
-const bunyan = require("bunyan");
 const shell = require("shelljs");
 const path = require("path");
-const utils = require("./tools");
-class TlogManager extends TeventDispatcher_1.TeventDispatcher {
+const tools = require("./tools");
+const Logger = require("bunyan");
+class TlogManager {
     constructor(config) {
-        super();
         this.config = null;
         this._loggers = {};
         this.logsConfig = null;
@@ -42,7 +40,7 @@ class TlogManager extends TeventDispatcher_1.TeventDispatcher {
                 for (var i = 0; i < this.logsConfig.logger.streams.length; i++) {
                     var stream = this.logsConfig.logger.streams[i];
                     if (stream.path) {
-                        stream.path = utils.replaceEnvVars(stream.path);
+                        stream.path = tools.replaceEnvVars(stream.path);
                         var dir = path.dirname(stream.path);
                         try {
                             shell.mkdir('-p', dir);
@@ -63,7 +61,7 @@ class TlogManager extends TeventDispatcher_1.TeventDispatcher {
         if (typeof this._loggers[name] == "undefined") {
             var loggerConf = this.getLogsConfig().logger;
             loggerConf.name = name;
-            this._loggers[name] = bunyan.createLogger(loggerConf);
+            this._loggers[name] = Logger.createLogger(loggerConf);
         }
         return this._loggers[name];
     }

@@ -28,6 +28,9 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
         };
         Redis.Promise.onPossiblyUnhandledRejection(this.onPossiblyUnhandledRejection.bind(this));
     }
+    get isMasterProcess() {
+        return cluster.isMaster;
+    }
     get isClusterMaster() {
         return this.workerInfos.isClusterMaster;
     }

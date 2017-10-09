@@ -3,15 +3,17 @@ import { TlogManager } from './TlogManager';
 import { TbaseService } from './services/TbaseService';
 import { Tevent } from './events/Tevent';
 import Promise = require("bluebird");
+import * as Logger from "bunyan";
 
 declare var global
 declare var app
+
 
 export class Tworker extends TeventDispatcher {
     config: any;
     services: TbaseService[] = [];
     logManager: TlogManager;
-    logger: any;
+    logger: Logger;
     constructor(config) {
         super();
 
@@ -26,7 +28,7 @@ export class Tworker extends TeventDispatcher {
             this.logger.error("onPossiblyUnhandledRejection", error);
         }.bind(this));
     }
-    getLogger(name: string): any {
+    getLogger(name: string): Logger {
         return this.logManager.getLogger(name);
     }
     onServerMasterChanged(e: Tevent): void {

@@ -1,4 +1,5 @@
 /// <reference types="express" />
+/// <reference types="bluebird" />
 import Promise = require("bluebird");
 import express = require("express");
 export { Ttimer } from './Ttimer';

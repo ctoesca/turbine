@@ -1,14 +1,23 @@
+/// <reference types="bunyan" />
+import { IclusterManager } from './cluster/IclusterManager';
+import { TbaseService } from './services/TbaseService';
 import { TeventDispatcher } from './events/TeventDispatcher';
-import { TclusterManager } from './cluster/TclusterManager';
+import { Tevent } from './events/Tevent';
 import { TlogManager } from './TlogManager';
+import * as Logger from 'bunyan';
 export declare class Tapplication extends TeventDispatcher {
     appVersion: string;
     config: any;
-    services: any[];
+    services: TbaseService[];
     logManager: TlogManager;
     logger: any;
-    ClusterManager: TclusterManager;
+    ClusterManager: IclusterManager;
     constructor(config: any);
-    getLogger(name: string): any;
+    init(): void;
+    registerService(svc: TbaseService): void;
+    getService(name: string): TbaseService;
+    onServerMasterChanged(e: Tevent): void;
+    onIsMasterChanged(e: Tevent): void;
+    getLogger(name: string): Logger;
     start(): void;
 }

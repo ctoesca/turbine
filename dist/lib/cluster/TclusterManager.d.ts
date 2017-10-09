@@ -1,8 +1,9 @@
 /// <reference types="node" />
 import { TeventDispatcher } from '../events/TeventDispatcher';
+import { IclusterManager } from './IclusterManager';
 import { Ttimer } from '../tools/Ttimer';
 import cluster = require("cluster");
-export declare class TclusterManager extends TeventDispatcher {
+export declare class TclusterManager extends TeventDispatcher implements IclusterManager {
     config: any;
     redisErrors: number;
     app: any;
@@ -17,8 +18,9 @@ export declare class TclusterManager extends TeventDispatcher {
     nodeID: any;
     oneProcessPerServerTimer: Ttimer;
     constructor(app: any, config: any);
-    readonly isClusterMaster: any;
-    readonly isServerMaster: any;
+    readonly isMasterProcess: boolean;
+    readonly isClusterMaster: boolean;
+    readonly isServerMaster: boolean;
     onPossiblyUnhandledRejection(error: any): void;
     start(): void;
     onTimer(): void;

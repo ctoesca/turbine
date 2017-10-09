@@ -1,9 +1,9 @@
 import { TeventDispatcher } from '../events/TeventDispatcher';
-import { Tapplication } from '../Tapplication';
+import { Iapplication } from '../Iapplication';
 
 import shell = require("shell")
 
-declare var app : Tapplication
+declare var app : Iapplication
 
 export abstract class TbaseService extends TeventDispatcher {
 
@@ -32,13 +32,18 @@ export abstract class TbaseService extends TeventDispatcher {
             if (e.code != 'EEXIST')
                 throw e;
         }
+
         this.logger = app.getLogger(this.name);
         this.logger.info("Creation service '" + this.name + "'. executionPolicy=" + this.executionPolicy);
+
     }
 
     abstract getDefaultConfig()
 
     start() {
+
+
+
         if (this.active && !this.started) {
             this.logger.info("service '" + this.name + "' started.");
             this.started = true;

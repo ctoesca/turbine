@@ -5,6 +5,5 @@ import * as cluster from "./lib/cluster";
 import * as rest from "./lib/rest";
 import * as exceptions from "./lib/exceptions";
 import * as services from "./lib/services";
-export { Tworker } from './lib/Tworker';
 export { Tapplication } from './lib/Tapplication';
 export { services, events, tools, dao, cluster, rest, exceptions };

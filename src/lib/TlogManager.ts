@@ -1,19 +1,18 @@
-import { TeventDispatcher } from './events/TeventDispatcher';
-import bunyan = require('bunyan');
 import shell = require('shelljs');
 import path = require('path');
-import utils = require('./tools');
+import tools = require('./tools');
+import * as Logger from "bunyan";
 
-export class TlogManager extends TeventDispatcher {
+export class TlogManager  {
 
     config: any = null;
     _loggers = {};
     logsConfig: any = null;
 
     constructor(config) {
-        super();
         this.config = config;
     }
+
     getDefaultLogConfig() {
         var r = {
             "logger": {
@@ -43,7 +42,7 @@ export class TlogManager extends TeventDispatcher {
                 for (var i = 0; i < this.logsConfig.logger.streams.length; i++) {
                     var stream = this.logsConfig.logger.streams[i];
                     if (stream.path) {
-                        stream.path = utils.replaceEnvVars(stream.path);
+                        stream.path = tools.replaceEnvVars(stream.path);
                         var dir = path.dirname(stream.path);
                         try {
                             shell.mkdir('-p', dir);
@@ -58,13 +57,13 @@ export class TlogManager extends TeventDispatcher {
         }
         return this.logsConfig;
     }
-    getLogger(name: string = null) {
+    getLogger(name: string = null):Logger {
         if (name == null)
             name = "Main";
         if (typeof this._loggers[name] == "undefined") {
             var loggerConf = this.getLogsConfig().logger;
             loggerConf.name = name;
-            this._loggers[name] = bunyan.createLogger(loggerConf);
+            this._loggers[name] = Logger.createLogger(loggerConf);
         }
         return this._loggers[name];
     }

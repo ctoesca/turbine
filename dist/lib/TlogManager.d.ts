@@ -1,6 +1,7 @@
 /// <reference types="node" />
-import { TeventDispatcher } from './events/TeventDispatcher';
-export declare class TlogManager extends TeventDispatcher {
+/// <reference types="bunyan" />
+import * as Logger from "bunyan";
+export declare class TlogManager {
     config: any;
     _loggers: {};
     logsConfig: any;
@@ -19,5 +20,5 @@ export declare class TlogManager extends TeventDispatcher {
         };
     };
     getLogsConfig(): any;
-    getLogger(name?: string): any;
+    getLogger(name?: string): Logger;
 }

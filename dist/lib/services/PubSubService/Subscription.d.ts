@@ -1,3 +1,4 @@
+/// <reference types="bluebird" />
 import { TeventDispatcher } from '../../events/TeventDispatcher';
 import { Tevent } from '../../events/Tevent';
 import { Client } from './Client';

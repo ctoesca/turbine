@@ -1,7 +1,7 @@
 import { Tevent } from './Tevent';
 export declare class TeventDispatcher {
-    protected _listeners: {};
-    protected _isDestroyed: boolean;
+    private _listeners;
+    private _isDestroyed;
     constructor(args?: any);
     free(): void;
     _getListenerIndex(type: string, listener: (evt: Tevent) => void): number;

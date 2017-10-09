@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const TeventDispatcher_1 = require("./events/TeventDispatcher");
 const TclusterManager_1 = require("./cluster/TclusterManager");
+const TeventDispatcher_1 = require("./events/TeventDispatcher");
 const TlogManager_1 = require("./TlogManager");
+const Promise = require("bluebird");
 class Tapplication extends TeventDispatcher_1.TeventDispatcher {
     constructor(config) {
         super();
@@ -14,10 +15,10 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         this.config = config;
         if (!this.config.clusterName)
             this.config.clusterName = "turbine";
+    }
+    init() {
         this.logManager = new TlogManager_1.TlogManager(this.config.logs);
         this.logger = this.getLogger("Application");
-        global.logger = this.getLogger("main");
-        global.getLogger = this.getLogger.bind(this);
         var clusterManagerClass = TclusterManager_1.TclusterManager;
         if (this.config.clusterManagerClass)
             clusterManagerClass = this.config.clusterManagerClass;
@@ -27,18 +28,71 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
             redis: this.config.redis
         });
         this.ClusterManager.start();
-        this.ClusterManager.on("WORKER_CREATED", function (process) {
-            var clazz = this.config.workerClass;
-            global.app = new clazz(this.config);
-            global.app.ClusterManager = this.ClusterManager;
-            global.app.start();
-        }.bind(this));
+        if (!this.ClusterManager.isMasterProcess) {
+            this.logger.info("Node worker started (PID=" + process.pid + ")");
+            this.ClusterManager.on("ISMASTER_CHANGED", this.onIsMasterChanged.bind(this));
+            this.ClusterManager.on("MASTER_SERVER_PROCESS_CHANGED", this.onServerMasterChanged.bind(this));
+            Promise.onPossiblyUnhandledRejection((error) => {
+                this.logger.error("onPossiblyUnhandledRejection", error);
+            });
+            this.start();
+        }
+        else {
+            this.logger.info("Node master started (PID=" + process.pid + ")");
+        }
+    }
+    registerService(svc) {
+        this.services.push(svc);
+        if (svc.active && (svc.executionPolicy == "one_per_process"))
+            svc.start();
+        else
+            svc.stop();
+    }
+    getService(name) {
+        var r = null;
+        for (var i = 0; i < this.services.length; i++) {
+            var svc = this.services[i];
+            if (svc.name == name) {
+                r = svc;
+                break;
+            }
+        }
+        return r;
+    }
+    onServerMasterChanged(e) {
+        if (e.data)
+            this.logger.info("This worker becomes SERVER_MASTER");
+        else
+            this.logger.info("This worker is no longer SERVER_MASTER");
+        for (var i = 0; i < this.services.length; i++) {
+            var svc = this.services[i];
+            if (svc.active && (svc.executionPolicy == "one_per_server")) {
+                if (e.data)
+                    svc.start();
+                else
+                    svc.stop();
+            }
+        }
+    }
+    onIsMasterChanged(e) {
+        if (e.data)
+            this.logger.info("This worker becomes MASTER");
+        else
+            this.logger.info("This worker is no longer MASTER");
+        for (var i = 0; i < this.services.length; i++) {
+            var svc = this.services[i];
+            if (svc.executionPolicy == "one_in_cluster") {
+                if (e.data)
+                    svc.start();
+                else
+                    svc.stop();
+            }
+        }
     }
     getLogger(name) {
         return this.logManager.getLogger(name);
     }
     start() {
-        this.logger.info("Application started");
     }
 }
 exports.Tapplication = Tapplication;
