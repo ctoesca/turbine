@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Promise = require("bluebird");
 const portscanner = require("portscanner");
+const StringPrototype = require('./String.prototype');
 var Ttimer_1 = require("./Ttimer");
 exports.Ttimer = Ttimer_1.Ttimer;
 var TwindowsServiceManager_js_1 = require("./TwindowsServiceManager.js");

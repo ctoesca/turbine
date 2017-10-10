@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { TeventDispatcher } from '../events/TeventDispatcher';
 import { IclusterManager } from './IclusterManager';
-import { Ttimer } from '../tools/Ttimer';
+import * as tools from '../tools';
 import cluster = require("cluster");
 export declare class TclusterManager extends TeventDispatcher implements IclusterManager {
     config: any;
@@ -16,7 +16,7 @@ export declare class TclusterManager extends TeventDispatcher implements Icluste
     timerInterval: number;
     maxActivityInterval: number;
     nodeID: any;
-    oneProcessPerServerTimer: Ttimer;
+    oneProcessPerServerTimer: tools.Ttimer;
     constructor(app: any, config: any);
     readonly isMasterProcess: boolean;
     readonly isClusterMaster: boolean;

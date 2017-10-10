@@ -23,7 +23,6 @@ class TrestEndpoint extends TeventDispatcher_1.TeventDispatcher {
         res.set('X-Time', xTime.toString());
     }
     onAfterRequest(req, res, next) {
-        this.logger.debug("onAfterRequest");
     }
     sendResponse(req, res, next, result, status = 200) {
         res.status(status).send(result);

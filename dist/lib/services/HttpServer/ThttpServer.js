@@ -76,9 +76,6 @@ class ThttpServer extends TbaseService_js_1.TbaseService {
             this.initRoutes();
             this.listen();
         }.bind(this))
-            .then(function () {
-            this.setErrorsHandlers();
-        }.bind(this))
             .catch(function (err) {
             process.exit(1);
         });

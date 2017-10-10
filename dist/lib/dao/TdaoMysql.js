@@ -6,10 +6,8 @@ const SqlString = require("sqlstring");
 const TdaoBase_1 = require("./TdaoBase");
 const Promise = require("bluebird");
 class TdaoMysql extends TdaoBase_1.TdaoBase {
-    constructor(db, config) {
-        super(config);
-        this.db = null;
-        this.config = null;
+    constructor(objectClassName, datasource, config) {
+        super(objectClassName, datasource, config);
         this.table = null;
         this.viewTable = null;
         this.IDField = "id";
@@ -21,8 +19,6 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         this.connections = 0;
         this.poolname = null;
         this.logger = null;
-        this.db = db;
-        this.config = config;
         this.table = config.tableName;
         this.viewTable = this.table;
         if (this.config.viewName)
@@ -36,8 +32,8 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         this.cache = new NodeCache({ stdTTL: 3600 });
         if (typeof TdaoMysql.pool == "undefined")
             TdaoMysql.pool = {};
-        this.db.multipleStatements = true;
-        this.poolname = this.db.host + "_" + this.db.database + "_" + this.db.port;
+        this.datasource.multipleStatements = true;
+        this.poolname = this.datasource.host + "_" + this.datasource.database + "_" + this.datasource.port;
     }
     init() {
         return this.getFields("table")
@@ -62,7 +58,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
     getPool() {
         if (typeof TdaoMysql.pool[this.poolname] == "undefined") {
             this.logger.debug("Create pool " + this.poolname);
-            TdaoMysql.pool[this.poolname] = mysql.createPool(this.db);
+            TdaoMysql.pool[this.poolname] = mysql.createPool(this.datasource);
             TdaoMysql.pool[this.poolname].on("open", this.onConnectionOpen.bind(this));
             TdaoMysql.pool[this.poolname].on("close", this.onConnectionClosed.bind(this));
             TdaoMysql.pool[this.poolname].on("error", this.onConnectionError.bind(this));

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const TeventDispatcher_1 = require("../events/TeventDispatcher");
 const Tevent_1 = require("../events/Tevent");
-const Ttimer_1 = require("../tools/Ttimer");
+const tools = require("../tools");
 const cluster = require("cluster");
 const uuid = require("uuid");
 const os = require("os");
@@ -46,6 +46,8 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
         this.logger = this.app.getLogger(this.constructor.name);
         this.localMasterPid = null;
         if (cluster.isMaster) {
+            this.client = this.getNewClient();
+            this.client.del("workers");
             this.logger.info("HOSTNAME = " + os.hostname());
             this.logger.info("NOMBRE DE COEURS: " + os.cpus().length);
             var sendToAllWorkers = function (message) {
@@ -109,12 +111,16 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
                 this.workers = {};
                 var currentServerMaster = null;
                 var currentClusterMaster = null;
+                var thisWorkerIsRegistrerer = false;
                 for (var k in result) {
                     var w = JSON.parse(result[k]);
                     this.workers[k] = w;
-                    var workerIsThisProcess = (w.id == this.getThisWorkerId());
+                    if (w.id == this.getThisWorkerId()) {
+                        thisWorkerIsRegistrerer = true;
+                    }
                     var diff = now.getTime() - w.lastActivity;
-                    var timedout = (diff > this.maxActivityInterval);
+                    var timeout = (this.maxActivityInterval + tools.randomBetween(0, this.maxActivityInterval));
+                    var timedout = (diff > timeout);
                     if (timedout) {
                         this.client.hdel("workers", w.id);
                     }
@@ -205,8 +211,8 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
         this.client.on("end", function (data) {
             this.logger.debug("REDIS end");
         }.bind(this));
-        this.oneProcessPerServerTimer = new Ttimer_1.Ttimer({ delay: this.timerInterval });
-        this.oneProcessPerServerTimer.on(Ttimer_1.Ttimer.ON_TIMER, this.onTimer, this);
+        this.oneProcessPerServerTimer = new tools.Ttimer({ delay: this.timerInterval });
+        this.oneProcessPerServerTimer.on(tools.Ttimer.ON_TIMER, this.onTimer, this);
         this.oneProcessPerServerTimer.start();
     }
     onLocalClusterMessage(message) {

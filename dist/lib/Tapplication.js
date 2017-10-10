@@ -4,6 +4,7 @@ const TclusterManager_1 = require("./cluster/TclusterManager");
 const TeventDispatcher_1 = require("./events/TeventDispatcher");
 const TlogManager_1 = require("./TlogManager");
 const Promise = require("bluebird");
+const dao = require("./dao");
 class Tapplication extends TeventDispatcher_1.TeventDispatcher {
     constructor(config) {
         super();
@@ -12,6 +13,7 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         this.services = [];
         this.logger = null;
         this.ClusterManager = null;
+        this._daoList = {};
         this.config = config;
         if (!this.config.clusterName)
             this.config.clusterName = "turbine";
@@ -19,6 +21,9 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
     init() {
         this.logManager = new TlogManager_1.TlogManager(this.config.logs);
         this.logger = this.getLogger("Application");
+        Promise.onPossiblyUnhandledRejection((error) => {
+            this.logger.error("onPossiblyUnhandledRejection", error);
+        });
         var clusterManagerClass = TclusterManager_1.TclusterManager;
         if (this.config.clusterManagerClass)
             clusterManagerClass = this.config.clusterManagerClass;
@@ -32,9 +37,6 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
             this.logger.info("Node worker started (PID=" + process.pid + ")");
             this.ClusterManager.on("ISMASTER_CHANGED", this.onIsMasterChanged.bind(this));
             this.ClusterManager.on("MASTER_SERVER_PROCESS_CHANGED", this.onServerMasterChanged.bind(this));
-            Promise.onPossiblyUnhandledRejection((error) => {
-                this.logger.error("onPossiblyUnhandledRejection", error);
-            });
             this.start();
         }
         else {
@@ -42,6 +44,7 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         }
     }
     registerService(svc) {
+        this.logger.error("registerService svc.active=" + svc.active + ", svc.executionPolicy=" + svc.executionPolicy);
         this.services.push(svc);
         if (svc.active && (svc.executionPolicy == "one_per_process"))
             svc.start();
@@ -93,6 +96,30 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         return this.logManager.getLogger(name);
     }
     start() {
+    }
+    getDao(objectClassName, datasourceName = null) {
+        if (!this._daoList[id]) {
+            let modelConfig;
+            if (!this.config.models)
+                throw "l'object 'models' n'existe pas dans la configuration";
+            else if (!this.config.models[objectClassName])
+                throw "Le model " + objectClassName + " n'est pas référencée dans la configuration";
+            else
+                modelConfig = this.config.models[objectClassName];
+            if (datasourceName == null) {
+                if (modelConfig.datasource)
+                    datasourceName = modelConfig.datasource;
+                else
+                    throw "Le model '" + objectClassName + "' n'a pas de datasource par défaut";
+            }
+            if (typeof this.config.datasources[datasourceName] == "undefined")
+                throw "Le datasource " + datasourceName + " n'est pas référencée dans la configuration";
+            let datasource = this.config.datasources[datasourceName];
+            var id = objectClassName + "." + datasourceName;
+            this._daoList[id] = new dao.TdaoMysql(objectClassName, datasource, modelConfig);
+            this._daoList[id].init();
+        }
+        return this._daoList[id];
     }
 }
 exports.Tapplication = Tapplication;

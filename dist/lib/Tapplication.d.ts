@@ -12,6 +12,7 @@ export declare class Tapplication extends TeventDispatcher {
     logManager: TlogManager;
     logger: any;
     ClusterManager: IclusterManager;
+    private _daoList;
     constructor(config: any);
     init(): void;
     registerService(svc: TbaseService): void;
@@ -20,4 +21,5 @@ export declare class Tapplication extends TeventDispatcher {
     onIsMasterChanged(e: Tevent): void;
     getLogger(name: string): Logger;
     start(): void;
+    getDao(objectClassName: any, datasourceName?: any): any;
 }

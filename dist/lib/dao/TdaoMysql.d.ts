@@ -2,8 +2,6 @@
 import { TdaoBase } from './TdaoBase';
 import Promise = require("bluebird");
 export declare class TdaoMysql extends TdaoBase {
-    db: any;
-    config: any;
     table: string;
     viewTable: string;
     IDField: string;
@@ -16,7 +14,7 @@ export declare class TdaoMysql extends TdaoBase {
     poolname: any;
     logger: any;
     static pool: any;
-    constructor(db: any, config: any);
+    constructor(objectClassName: any, datasource: any, config: any);
     init(): Promise<{}>;
     pad(number: any): any;
     getMysqDateFromDate(d: any): string;
