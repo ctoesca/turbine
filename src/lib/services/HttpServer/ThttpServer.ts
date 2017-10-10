@@ -84,10 +84,8 @@ export class ThttpServer extends TbaseService {
             this.initRoutes();
             this.listen();
         }.bind(this))
-            .then(function () {
-            this.setErrorsHandlers();
-        }.bind(this))
-            .catch(function (err) {
+
+        .catch(function (err) {
             process.exit(1);
         });
     }

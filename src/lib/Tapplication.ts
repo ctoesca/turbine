@@ -8,6 +8,7 @@ import { Tevent } from './events/Tevent';
 import { TlogManager } from './TlogManager';
 import * as Logger from 'bunyan';
 import Promise = require('bluebird');
+import * as dao from './dao';
 
 declare var global
 
@@ -19,6 +20,8 @@ export class Tapplication extends TeventDispatcher {
     logManager: TlogManager;
     logger: any = null;
     ClusterManager: IclusterManager = null;
+
+    private _daoList = {}
 
     constructor(config) {
         super();
@@ -64,6 +67,7 @@ export class Tapplication extends TeventDispatcher {
 
     }
     registerService(svc: TbaseService): void {
+        this.logger.error("registerService svc.active="+svc.active+", svc.executionPolicy="+svc.executionPolicy)
         this.services.push(svc);
         if (svc.active && (svc.executionPolicy == "one_per_process"))
             svc.start();
@@ -122,4 +126,37 @@ export class Tapplication extends TeventDispatcher {
     start() {
 
     }
+
+    getDao( objectClassName, datasourceName = null )
+    {
+
+  		if ( !this._daoList[id] ){
+
+        let modelConfig
+        if (! this.config.models)
+          throw "l'object 'models' n'existe pas dans la configuration"
+        else if (!this.config.models[objectClassName])
+          throw "Le model "+objectClassName+" n'est pas référencée dans la configuration";
+        else
+          modelConfig = this.config.models[objectClassName]
+
+        if (datasourceName == null){
+            if (modelConfig.datasource)
+              datasourceName = modelConfig.datasource
+            else
+              throw "Le model '"+objectClassName+"' n'a pas de datasource par défaut"
+        }
+
+        if (typeof this.config.datasources[datasourceName] == "undefined")
+  				throw "Le datasource "+datasourceName+" n'est pas référencée dans la configuration";
+        let datasource = this.config.datasources[datasourceName]
+
+        var id =  objectClassName+"."+datasourceName
+
+  			this._daoList[id] = new dao.TdaoMysql( objectClassName, datasource, modelConfig );
+  			this._daoList[id].init()
+  		}
+  		return this._daoList[id]
+  	}
+
 }

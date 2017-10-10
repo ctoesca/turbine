@@ -31,7 +31,7 @@ export class TrestEndpoint extends TeventDispatcher {
         res.set('X-Time', xTime.toString());
     }
     onAfterRequest(req: express.Request, res: express.Response, next: express.NextFunction) {
-        this.logger.debug("onAfterRequest");
+
     }
     sendResponse(req: express.Request, res: express.Response, next, result, status = 200) {
         res.status(status).send(result);

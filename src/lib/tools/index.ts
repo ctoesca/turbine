@@ -1,7 +1,7 @@
 import Promise = require("bluebird");
 import express = require("express");
 import portscanner = require('portscanner');
-import StringPrototype = require('./String.prototype');
+const StringPrototype = require('./String.prototype');
 
 
 export { Ttimer } from './Ttimer';
@@ -21,6 +21,7 @@ export function getIpClient(req: express.Request): string{
       ip = req.connection.remoteAddress;
   if (ip == "::1")
       ip = "127.0.0.1";
+
   if (ip.startsWith("::ffff:"))
       ip = ip.rightOf("::ffff:");
   return ip;

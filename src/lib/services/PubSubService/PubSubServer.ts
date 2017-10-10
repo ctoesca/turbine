@@ -6,7 +6,7 @@ import { Client } from "./Client";
 import { Tapplication } from '../../Tapplication';
 import { ThttpServer } from '../HttpServer/ThttpServer';
 
-import uuid = require("node-uuid");
+import uuid = require("uuid");
 import ws = require("ws");
 import sockjs = require("sockjs");
 import express = require("express");

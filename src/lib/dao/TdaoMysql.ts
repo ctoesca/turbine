@@ -12,8 +12,6 @@ declare var app: Tapplication
 
 export class TdaoMysql extends TdaoBase {
 
-    db: any = null;
-    config: any = null;
     table: string = null;
     viewTable: string = null;
     IDField: string = "id";
@@ -27,11 +25,10 @@ export class TdaoMysql extends TdaoBase {
     logger: any = null;
     static pool: any = null;
 
-    constructor(db, config) {
-        super(config);
+    constructor(objectClassName, datasource, config) {
 
-        this.db = db;
-        this.config = config;
+        super(objectClassName, datasource, config);
+
         this.table = config.tableName;
         this.viewTable = this.table;
         if (this.config.viewName)
@@ -45,8 +42,8 @@ export class TdaoMysql extends TdaoBase {
         this.cache = new NodeCache({ stdTTL: 3600 });
         if (typeof TdaoMysql.pool == "undefined")
             TdaoMysql.pool = {};
-        this.db.multipleStatements = true;
-        this.poolname = this.db.host + "_" + this.db.database + "_" + this.db.port;
+        this.datasource.multipleStatements = true;
+        this.poolname = this.datasource.host + "_" + this.datasource.database + "_" + this.datasource.port;
     }
     init() {
         return this.getFields("table")
@@ -71,7 +68,7 @@ export class TdaoMysql extends TdaoBase {
     getPool() {
         if (typeof TdaoMysql.pool[this.poolname] == "undefined") {
             this.logger.debug("Create pool " + this.poolname);
-            TdaoMysql.pool[this.poolname] = mysql.createPool(this.db);
+            TdaoMysql.pool[this.poolname] = mysql.createPool(this.datasource);
             TdaoMysql.pool[this.poolname].on("open", this.onConnectionOpen.bind(this));
             TdaoMysql.pool[this.poolname].on("close", this.onConnectionClosed.bind(this));
             TdaoMysql.pool[this.poolname].on("error", this.onConnectionError.bind(this));
@@ -215,7 +212,7 @@ export class TdaoMysql extends TdaoBase {
         }.bind(this));
     }
     selectOne(opt) {
-        return this.select(opt).then(function (result) {
+        return this.select(opt).then(function (result: any[]) {
             var r = null;
             if (result.length > 0)
                 r = result[0];
@@ -689,7 +686,7 @@ export class TdaoMysql extends TdaoBase {
             .then(function (result) {
             return this._processObjects(result, query.resultFields);
         }.bind(this))
-            .then(function (result) {
+            .then(function (result: any[]) {
             r.data = result;
         })
             .then(function (result) {
