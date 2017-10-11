@@ -6,6 +6,7 @@ export interface IclusterManager extends TeventDispatcher {
     isMasterProcess: boolean
     isClusterMaster: boolean
     isServerMaster: boolean
+    keyPrefix: string
     start()
     getThisWorkerId(): string
     getClusterWorkers()

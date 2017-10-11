@@ -18,7 +18,6 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         this.viewtablefieldsByName = null;
         this.connections = 0;
         this.poolname = null;
-        this.logger = null;
         this.table = config.tableName;
         this.viewTable = this.table;
         if (this.config.viewName)
@@ -30,8 +29,6 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         if (typeof this.config.IDFieldIsAuto != "undefined")
             this.IDFieldIsAuto = this.config.IDFieldIsAuto;
         this.cache = new NodeCache({ stdTTL: 3600 });
-        if (typeof TdaoMysql.pool == "undefined")
-            TdaoMysql.pool = {};
         this.datasource.multipleStatements = true;
         this.poolname = this.datasource.host + "_" + this.datasource.database + "_" + this.datasource.port;
     }
@@ -739,6 +736,6 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         this.logger.error("SQL CONNECTION ERROR: " + err);
     }
 }
-TdaoMysql.pool = null;
+TdaoMysql.pool = {};
 exports.TdaoMysql = TdaoMysql;
 //# sourceMappingURL=TdaoMysql.js.map

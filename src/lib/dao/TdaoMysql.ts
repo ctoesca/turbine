@@ -22,8 +22,8 @@ export class TdaoMysql extends TdaoBase {
     viewtablefieldsByName: any = null;
     connections: number = 0
     poolname: any = null;
-    logger: any = null;
-    static pool: any = null;
+
+    static pool: any = {};
 
     constructor(objectClassName, datasource, config) {
 
@@ -40,8 +40,7 @@ export class TdaoMysql extends TdaoBase {
         if (typeof this.config.IDFieldIsAuto != "undefined")
             this.IDFieldIsAuto = this.config.IDFieldIsAuto;
         this.cache = new NodeCache({ stdTTL: 3600 });
-        if (typeof TdaoMysql.pool == "undefined")
-            TdaoMysql.pool = {};
+
         this.datasource.multipleStatements = true;
         this.poolname = this.datasource.host + "_" + this.datasource.database + "_" + this.datasource.port;
     }

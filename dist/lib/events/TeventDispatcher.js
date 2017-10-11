@@ -6,6 +6,9 @@ class TeventDispatcher {
         this._listeners = {};
         this._isDestroyed = false;
     }
+    get isDestroyed() {
+        return this._isDestroyed;
+    }
     free() {
         var evt = new Tevent_1.Tevent("DESTROY");
         this.dispatchEvent(evt);

@@ -8,13 +8,18 @@ export class TeventDispatcher {
     constructor(args = null) {
     }
 
+    get isDestroyed(): boolean{
+        return this._isDestroyed
+    }
+
     free() {
         var evt = new Tevent("DESTROY");
         this.dispatchEvent(evt);
         this.removeAllListeners();
         this._isDestroyed = true;
     }
-    _getListenerIndex(type: string, listener: (evt: Tevent) => void): number {
+
+    private _getListenerIndex(type: string, listener: (evt: Tevent) => void): number {
         if (!this.hasEventListener(type))
             return -1;
         for (var i = 0; i < this._listeners[type].length; i++) {
@@ -24,6 +29,8 @@ export class TeventDispatcher {
         }
         return -1;
     }
+
+    /** Emet un évènement */
     dispatchEvent(event: Tevent): void {
         if (!this.hasEventListener(event.type))
             return;

@@ -7,8 +7,19 @@ export class Tevent {
     defaultPrevented: boolean = false;
     bind: () => void = null;
     relatedData: any = null;
-    
-    constructor(type: string, eventData: any =  null, cancelable: boolean = true){
+
+    /**
+        @class turbine.events.Tevent
+        @classdesc Evènement.
+        @param {string} type Type d'évènement
+        @param {any} eventData  Donnée associée à cet évènement, accessible sous la propriété 'data'.
+        @param {boolean} cancelable
+    */
+    constructor(
+      type: string,
+      eventData: any =  null,
+      cancelable: boolean = true)
+      {
         if (arguments.length > 0)
             this.type = type;
         if (arguments.length > 1)

@@ -12,7 +12,6 @@ export declare class TdaoMysql extends TdaoBase {
     viewtablefieldsByName: any;
     connections: number;
     poolname: any;
-    logger: any;
     static pool: any;
     constructor(objectClassName: any, datasource: any, config: any);
     init(): Promise<{}>;

@@ -15,6 +15,6 @@ export class TdaoBase extends TeventDispatcher {
         this.config = config;
         this.datasource = datasource;
         this.logger = app.getLogger(this.constructor.name);
-        this.logger.debug("Create DAO " + this.constructor.name);
+        this.logger.info("Create DAO " + this.constructor.name);
     }
 }

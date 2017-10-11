@@ -5,6 +5,7 @@ import { Subscription } from './Subscription';
 import { PubSubServer } from './PubSubServer';
 import { Client } from './Client';
 import { Tapplication } from '../../Tapplication';
+import * as tools from '../../tools';
 
 declare var app: Tapplication
 

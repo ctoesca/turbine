@@ -129,6 +129,8 @@ export class Tapplication extends TeventDispatcher {
 
     getDao( objectClassName, datasourceName = null )
     {
+    
+      var id =  objectClassName+"."+datasourceName
 
   		if ( !this._daoList[id] ){
 
@@ -150,8 +152,6 @@ export class Tapplication extends TeventDispatcher {
         if (typeof this.config.datasources[datasourceName] == "undefined")
   				throw "Le datasource "+datasourceName+" n'est pas référencée dans la configuration";
         let datasource = this.config.datasources[datasourceName]
-
-        var id =  objectClassName+"."+datasourceName
 
   			this._daoList[id] = new dao.TdaoMysql( objectClassName, datasource, modelConfig );
   			this._daoList[id].init()

@@ -126,7 +126,7 @@ export class Client extends TeventDispatcher {
             this.conn.close();
     }
     onMessage(message, flags) {
-        if (this._isDestroyed) {
+        if (this.isDestroyed) {
             console.log("onMessage: CLIENT IS DESTROYED !!");
             return;
         }
@@ -168,7 +168,7 @@ export class Client extends TeventDispatcher {
         }
     }
     onClose(data) {
-        if (this._isDestroyed) {
+        if (this.isDestroyed) {
             this.logger.warn("onClose: CLIENT IS ALREADY DESTROYED !!");
             return;
         }
