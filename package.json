@@ -40,15 +40,29 @@
     "typescript": "^2.1.4"
   },
   "dependencies": {
+    "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
+    "connect-redis": "^3.3.2",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "fs": "0.0.1-security",
+    "generic-pool": "^3.2.0",
     "ioredis": "^3.1.4",
     "moment": "^2.19.0",
     "morgan": "^1.9.0",
     "mysql": "^2.15.0",
     "node-cache": "^4.1.1",
+    "os-utils": "0.0.14",
+    "passport": "^0.4.0",
+    "portscanner": "^2.1.1",
     "request": "^2.83.0",
+    "request-promise": "^4.2.2",
     "sha1": "^1.1.1",
+    "shell": "^0.3.2",
+    "shelljs": "^0.7.8",
+    "sockjs": "^0.3.19",
     "sqlstring": "^2.3.0",
+    "url": "^0.11.0",
     "ws": "^3.2.0"
   }
 }
