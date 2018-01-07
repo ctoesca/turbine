@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const TeventDispatcher_1 = require("../events/TeventDispatcher");
-const shell = require("shell");
+const shell = require("shelljs");
 class TbaseService extends TeventDispatcher_1.TeventDispatcher {
     constructor(name, config) {
         super();
@@ -17,7 +17,7 @@ class TbaseService extends TeventDispatcher_1.TeventDispatcher {
                 this.config[k] = config[k];
         }
         this.executionPolicy = this.config.executionPolicy;
-        this.active = this.config.active;
+        this.active = (this.config.active === true);
         try {
             if (typeof this.config.dataDir != "undefined")
                 shell.mkdir('-p', this.config.dataDir);
@@ -28,6 +28,10 @@ class TbaseService extends TeventDispatcher_1.TeventDispatcher {
         }
         this.logger = app.getLogger(this.name);
         this.logger.info("Creation service '" + this.name + "'. executionPolicy=" + this.executionPolicy);
+    }
+    install() {
+    }
+    uninstall() {
     }
     start() {
         if (this.active && !this.started) {

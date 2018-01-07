@@ -2,10 +2,12 @@
 /// <reference types="bluebird" />
 import Promise = require("bluebird");
 import express = require("express");
+import * as StringPrototype from "./String.prototype";
+export { StringPrototype };
 export { Ttimer } from './Ttimer';
 export { TwindowsServiceManager } from "./TwindowsServiceManager.js";
 export declare function replaceEnvVars(v: string): string;
 export declare function getIpClient(req: express.Request): string;
 export declare function randomBetween(min: number, max: number): number;
 export declare function checkPort(host: string, port: number, rejectIfNotOpened?: boolean): Promise<{}>;
-export declare function array_replace_recursive(arr: any): {};
+export declare function array_replace_recursive(arr: any, ...arrays: any[]): {};

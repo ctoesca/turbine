@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const TeventDispatcher_1 = require("../events/TeventDispatcher");
 const express = require("express");
 class TrestEndpoint extends TeventDispatcher_1.TeventDispatcher {
-    constructor(config, options) {
+    constructor(config) {
         super();
         this.config = null;
         this.parentApi = null;

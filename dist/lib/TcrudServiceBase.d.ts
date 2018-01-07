@@ -5,6 +5,8 @@ import Promise = require("bluebird");
 export declare class TcrudServiceBase extends TeventDispatcher {
     config: any;
     dao: TdaoMysql;
+    user: any;
+    model: any;
     constructor(config: any);
     getDao(): TdaoMysql;
     getById(id: any, opt: any): Promise<any>;

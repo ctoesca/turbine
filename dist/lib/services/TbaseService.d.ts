@@ -8,6 +8,8 @@ export declare abstract class TbaseService extends TeventDispatcher {
     logger: any;
     constructor(name: any, config: any);
     abstract getDefaultConfig(): any;
+    install(): void;
+    uninstall(): void;
     start(): void;
     stop(): void;
 }

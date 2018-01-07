@@ -8,3 +8,6 @@ export { TredisSessions } from './redis-sessions/TredisSessions';
 export { TtasksManager } from './tasksManager/TtasksManager';
 export { TjobScheduler } from './jobScheduler/TjobScheduler';
 export { TclientsCleaner } from './clientsCleaner';
+export { Tchecker } from './checker/Tchecker';
+import * as checker from "./checker";
+export { checker };

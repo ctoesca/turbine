@@ -32,7 +32,7 @@ export declare class TtasksManager extends TbaseService {
     getRunningTaskByPID(pid: number): any;
     getRunningTaskByID(id: string): any;
     checkTasks(): void;
-    sendCallback(task: any, eventName: string, callback: any): void;
+    sendCallback(task: any, eventName: string, callback?: any, attempts?: number): void;
     onRefreshTimer(): void;
     _startTask(req: express.Request, res: express.Response): void;
     _startTaskSync(req: express.Request, res: express.Response): void;

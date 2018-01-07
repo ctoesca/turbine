@@ -21,7 +21,7 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
         this.workerInfos = {
             id: this.getThisWorkerId(),
             pid: process.pid,
-            host: os.hostname(),
+            host: this.getHostName(),
             isClusterMaster: false,
             isServerMaster: false,
             lastActivity: null
@@ -42,13 +42,19 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
         if (this.logger)
             this.logger.error(error.toString());
     }
+    getHostName() {
+        if (this.config.localhostName)
+            return this.config.localhostName;
+        else
+            return os.hostname();
+    }
     start() {
         this.logger = this.app.getLogger(this.constructor.name);
         this.localMasterPid = null;
         if (cluster.isMaster) {
             this.client = this.getNewClient();
             this.client.del("workers");
-            this.logger.info("HOSTNAME = " + os.hostname());
+            this.logger.info("HOSTNAME = " + this.getHostName());
             this.logger.info("NOMBRE DE COEURS: " + os.cpus().length);
             var sendToAllWorkers = function (message) {
                 for (var i in cluster.workers) {
@@ -167,7 +173,7 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
         }.bind(this));
     }
     getThisWorkerId() {
-        return os.hostname() + "_" + process.pid;
+        return this.getHostName() + "_" + process.pid;
     }
     getClusterWorkers() {
         return cluster.workers;

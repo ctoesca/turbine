@@ -16,4 +16,10 @@ const services = require("./lib/services");
 exports.services = services;
 var Tapplication_1 = require("./lib/Tapplication");
 exports.Tapplication = Tapplication_1.Tapplication;
+var TcrudServiceBase_1 = require("./lib/TcrudServiceBase");
+exports.TcrudServiceBase = TcrudServiceBase_1.TcrudServiceBase;
+function _import(module) {
+    return Promise.resolve().then(() => require(module));
+}
+exports._import = _import;
 //# sourceMappingURL=index.js.map

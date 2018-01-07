@@ -44,7 +44,6 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         }
     }
     registerService(svc) {
-        this.logger.error("registerService svc.active=" + svc.active + ", svc.executionPolicy=" + svc.executionPolicy);
         this.services.push(svc);
         if (svc.active && (svc.executionPolicy == "one_per_process"))
             svc.start();
@@ -107,16 +106,27 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
                 throw "Le model " + objectClassName + " n'est pas référencée dans la configuration";
             else
                 modelConfig = this.config.models[objectClassName];
+            if (!modelConfig.dao)
+                throw "Le model '" + objectClassName + "' n'a pas de dao défini";
+            var daoConfig = null;
+            if (modelConfig.dao.daoConfig)
+                daoConfig = modelConfig.dao.daoConfig;
+            else
+                throw "Le DAO du model '" + objectClassName + "' n'a pas de configuration définie";
             if (datasourceName == null) {
-                if (modelConfig.datasource)
-                    datasourceName = modelConfig.datasource;
+                if (daoConfig.datasource)
+                    datasourceName = daoConfig.datasource;
                 else
-                    throw "Le model '" + objectClassName + "' n'a pas de datasource par défaut";
+                    throw "Le dao du model '" + objectClassName + "' n'a pas de datasource par défaut";
             }
             if (typeof this.config.datasources[datasourceName] == "undefined")
                 throw "Le datasource " + datasourceName + " n'est pas référencée dans la configuration";
             let datasource = this.config.datasources[datasourceName];
-            this._daoList[id] = new dao.TdaoMysql(objectClassName, datasource, modelConfig);
+            var clazz = dao.TdaoMysql;
+            if (modelConfig.dao.class) {
+                clazz = modelConfig.dao.class;
+            }
+            this._daoList[id] = new clazz(objectClassName, datasource, daoConfig);
             this._daoList[id].init();
         }
         return this._daoList[id];

@@ -7,15 +7,19 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
         super();
         this.config = null;
         this.dao = null;
+        this.user = null;
+        this.model = null;
         this.config = config;
-        app.logger.info("Creation TcrudServiceBase '" + this.config.objectClass + "'");
+        this.model = config.model;
+        app.logger.info("Creation TcrudServiceBase model.name='" + this.model.name + "'");
     }
     getDao() {
         if (this.dao == null)
-            this.dao = app.getDao(this.config.objectClass);
+            this.dao = app.getDao(this.model.name);
         return this.dao;
     }
     getById(id, opt) {
+        app.logger.error("***** " + this.model.name + ".getById(" + id + ")");
         var dao = this.getDao();
         return dao.getById(id).then(function (result) {
             return result;
@@ -29,19 +33,19 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
                 for (var i = 0; i < obj.length; i++) {
                     var payload = {
                         action: "post",
-                        objectClass: this.config.objectClass,
+                        objectClass: this.model.name,
                         data: result[i]
                     };
-                    app.pubSubServer.broadcast({ type: 'publish', channel: "topvision.ressources." + this.config.objectClass, payload: payload });
+                    app.pubSubServer.broadcast({ type: 'publish', channel: "strongbox.ressources." + this.model.name, payload: payload });
                 }
             }
             else {
                 var payload = {
                     action: "post",
-                    objectClass: this.config.objectClass,
+                    objectClass: this.model.name,
                     data: result
                 };
-                app.pubSubServer.broadcast({ type: 'publish', channel: "topvision.ressources." + this.config.objectClass, payload: payload });
+                app.pubSubServer.broadcast({ type: 'publish', channel: "strongbox.ressources." + this.model.name, payload: payload });
             }
             return result;
         }.bind(this));
@@ -51,13 +55,13 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
         return dao.deleteById(id, opt).then(function (result) {
             var payload = {
                 action: "delete",
-                objectClass: this.config.objectClass,
+                objectClass: this.model.name,
                 data: result,
                 emetteur: {
                     clientId: opt.clientId
                 }
             };
-            app.pubSubServer.broadcast({ type: 'publish', channel: "topvision.ressources." + this.config.objectClass, payload: payload });
+            app.pubSubServer.broadcast({ type: 'publish', channel: "strongbox.ressources." + this.model.name, payload: payload });
             return result;
         }.bind(this));
     }

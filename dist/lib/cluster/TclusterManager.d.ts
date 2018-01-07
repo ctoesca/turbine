@@ -22,6 +22,7 @@ export declare class TclusterManager extends TeventDispatcher implements Icluste
     readonly isClusterMaster: boolean;
     readonly isServerMaster: boolean;
     onPossiblyUnhandledRejection(error: any): void;
+    getHostName(): any;
     start(): void;
     onTimer(): void;
     getThisWorkerId(): string;

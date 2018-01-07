@@ -235,7 +235,7 @@ class TtasksManager extends TbaseService_1.TbaseService {
             }
         }
     }
-    sendCallback(task, eventName, callback) {
+    sendCallback(task, eventName, callback = null, attempts = 3) {
         var data = {
             task: task,
             event: "END",
@@ -252,8 +252,17 @@ class TtasksManager extends TbaseService_1.TbaseService {
             }, function (error, response, body) {
                 if (error) {
                     this.logger.error("Http POST error=" + error + ", url=" + task.callback_url);
-                    if (callback)
-                        callback(error, task);
+                    if (attempts <= 1) {
+                        if (callback)
+                            callback(error, task);
+                    }
+                    else {
+                        attempts--;
+                        this.logger.info("sendCallback: Nouvelle tentative dans 10 sec ... ");
+                        setTimeout(function () {
+                            this.sendCallback(task, eventName, callback, attempts);
+                        }.bind(this), 10000);
+                    }
                 }
                 else {
                     if (response && (response.statusCode < 400)) {
@@ -264,8 +273,17 @@ class TtasksManager extends TbaseService_1.TbaseService {
                     }
                     else {
                         this.logger.error("Http POST status=" + response.statusCode + ", body=" + body + ", url=" + task.callback_url);
-                        if (callback)
-                            callback("Http POST status=" + response.statusCode + ", body=" + body + ", url=" + task.callback_url, task);
+                        if (attempts <= 1) {
+                            if (callback)
+                                callback("Http POST status=" + response.statusCode + ", body=" + body + ", url=" + task.callback_url, task);
+                        }
+                        else {
+                            attempts--;
+                            this.logger.info("sendCallback: Nouvelle tentative dans 10 sec ... ");
+                            setTimeout(function () {
+                                this.sendCallback(task, eventName, callback, attempts);
+                            }.bind(this), 10000);
+                        }
                     }
                 }
             }.bind(this));

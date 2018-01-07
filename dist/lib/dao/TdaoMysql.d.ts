@@ -27,7 +27,7 @@ export declare class TdaoMysql extends TdaoBase {
     query(sql: any): Promise<{}>;
     _query(sql: any, connection: any): Promise<{}>;
     execSelectQuery(sql: any): Promise<{}>;
-    select(opt: any): Promise<{}>;
+    select(opt?: any): Promise<{}>;
     selectOne(opt: any): Promise<any>;
     empty(success: any, failure: any): Promise<{}>;
     getFields(type: any, opt?: any): Promise<any>;

@@ -1,5 +1,6 @@
 import { TeventDispatcher } from '../events/TeventDispatcher';
 export interface IclusterManager extends TeventDispatcher {
+    nodeID: string;
     isMasterProcess: boolean;
     isClusterMaster: boolean;
     isServerMaster: boolean;

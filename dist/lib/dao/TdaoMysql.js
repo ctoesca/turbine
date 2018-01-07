@@ -155,7 +155,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             .then(function (rows, fields) {
             this.releaseConnection(conn);
             var xtime = new Date().getTime() - startTime.getTime();
-            this.logger.debug("QUERY EXEC TIME=" + xtime + " ms");
+            this.logger.trace("QUERY EXEC TIME=" + xtime + " ms");
             return rows;
         }.bind(this));
     }
@@ -173,18 +173,16 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
                         resolve(rows);
                 }
             }.bind(this));
-        });
+        }.bind(this));
     }
     execSelectQuery(sql) {
         return this.query(sql).then(function (result) {
             return this._processObjects(result);
         }.bind(this));
     }
-    select(opt) {
+    select(opt = {}) {
         if (this.viewTable == null)
             throw new Error("viewTable is null");
-        if (arguments.length == 0)
-            opt = {};
         if (!opt.fields)
             opt.fields = "*";
         var sql = "select " + opt.fields + " from " + this.viewTable;
@@ -273,7 +271,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         }
         else if (this.IDFieldType == "integer") {
             if (parseInt(value) != value)
-                return Promise.reject("L'id doit être de type 'integer'");
+                return Promise.reject("L'id doit être de type 'integer'. Valeur donnée: " + value);
         }
         var sql = "select * from " + this.viewTable + " where " + this.IDField + " = " + value;
         return this.query(sql)
@@ -451,7 +449,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             return this.queryTransaction(sql);
         }.bind(this))
             .then(function (result) {
-            return this.getById(result.insertId);
+            return this.getById(result[0].insertId);
         }.bind(this))
             .then(function (result) {
             if (result == null)

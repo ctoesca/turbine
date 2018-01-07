@@ -2,7 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const Promise = require("bluebird");
 const portscanner = require("portscanner");
-const StringPrototype = require('./String.prototype');
+const StringPrototype = require("./String.prototype");
+exports.StringPrototype = StringPrototype;
 var Ttimer_1 = require("./Ttimer");
 exports.Ttimer = Ttimer_1.Ttimer;
 var TwindowsServiceManager_js_1 = require("./TwindowsServiceManager.js");
@@ -50,7 +51,7 @@ function checkPort(host, port, rejectIfNotOpened = false) {
     }.bind(this));
 }
 exports.checkPort = checkPort;
-function array_replace_recursive(arr) {
+function array_replace_recursive(arr, ...arrays) {
     var retObj = {}, i = 0, p = '', argl = arguments.length;
     if (argl < 2) {
         throw new Error('There should be at least 2 arguments passed to array_replace_recursive()');
