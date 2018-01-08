@@ -7,7 +7,6 @@ const cluster = require("cluster");
 const uuid = require("uuid");
 const os = require("os");
 const Redis = require("ioredis");
-const FakeRedis = require("fakeredis");
 class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
     constructor(app, config) {
         super();
@@ -228,28 +227,22 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
     getNewClient(db = null) {
         var redisConfig = this.config.redis;
         var r = null;
-        if (redisConfig.useFake) {
-            this.logger.warn("Creating FAKE redis client");
-            r = FakeRedis.createClient("test");
+        if (redisConfig.isCluster) {
+            this.logger.debug("Creating cluster redis client");
+            if (!redisConfig.clusterConfig.options.keyPrefix)
+                redisConfig.clusterConfig.options.keyPrefix = this.config.clusterName;
+            this.keyPrefix = redisConfig.clusterConfig.options.keyPrefix;
+            r = new Redis.Cluster(redisConfig.clusterConfig.hosts, redisConfig.clusterConfig.options);
         }
         else {
-            if (redisConfig.isCluster) {
-                this.logger.debug("Creating cluster redis client");
-                if (!redisConfig.clusterConfig.options.keyPrefix)
-                    redisConfig.clusterConfig.options.keyPrefix = this.config.clusterName;
-                this.keyPrefix = redisConfig.clusterConfig.options.keyPrefix;
-                r = new Redis.Cluster(redisConfig.clusterConfig.hosts, redisConfig.clusterConfig.options);
-            }
-            else {
-                var options = JSON.parse(JSON.stringify(redisConfig.normalConfig));
-                if (arguments.length > 0)
-                    options.db = db;
-                if (!options.keyPrefix)
-                    options.keyPrefix = this.config.clusterName;
-                this.keyPrefix = options.keyPrefix;
-                this.logger.debug("Creating redis client");
-                r = new Redis(options);
-            }
+            var options = JSON.parse(JSON.stringify(redisConfig.normalConfig));
+            if (arguments.length > 0)
+                options.db = db;
+            if (!options.keyPrefix)
+                options.keyPrefix = this.config.clusterName;
+            this.keyPrefix = options.keyPrefix;
+            this.logger.debug("Creating redis client");
+            r = new Redis(options);
         }
         return r;
     }
