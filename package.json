@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "Nodejs framework for creating clustered applications",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "prepublish": "npm run build",
     "build": "./node_modules/.bin/gulp",
