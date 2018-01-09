@@ -1,6 +1,6 @@
 {
   "name": "turbine",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Nodejs framework for creating clustered applications",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
