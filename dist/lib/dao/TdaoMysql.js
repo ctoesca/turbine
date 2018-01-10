@@ -192,7 +192,8 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             sql += " ORDER BY " + opt.orderBy;
         if (opt.limit)
             sql += " LIMIT " + opt.limit;
-        return this.execSelectQuery(sql).then(function (result) {
+        return this.execSelectQuery(sql)
+            .then(function (result) {
             return this._processObjects(result);
         }.bind(this));
     }
