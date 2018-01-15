@@ -47,12 +47,10 @@ class ThttpServer extends TbaseService_js_1.TbaseService {
         if (this.config && this.config["http-access-log"]) {
             var c = this.config["http-access-log"];
             if (c.enabled) {
-                this.logger.info("Activation logging HTTP acces");
+                this.logger.info("Activation logging HTTP acces", c);
                 c["log-dir"] = tools.replaceEnvVars(c["log-dir"]);
-                var accessLogStream = rfs(c["log-name"], {
-                    interval: c["rotating-period"],
-                    path: c["log-dir"]
-                });
+                c.options.path = c["log-dir"];
+                var accessLogStream = rfs(c["log-name"], c.options);
                 this.app.use(morgan('combined', { stream: accessLogStream }));
             }
         }
