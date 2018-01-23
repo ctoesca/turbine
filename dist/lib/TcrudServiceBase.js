@@ -19,7 +19,6 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
         return this.dao;
     }
     getById(id, opt) {
-        app.logger.error("***** " + this.model.name + ".getById(" + id + ")");
         var dao = this.getDao();
         return dao.getById(id).then(function (result) {
             return result;

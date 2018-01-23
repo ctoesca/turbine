@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const TclusterManager_1 = require("./cluster/TclusterManager");
+const ThttpServer_1 = require("./services/HttpServer/ThttpServer");
 const TeventDispatcher_1 = require("./events/TeventDispatcher");
 const TlogManager_1 = require("./TlogManager");
 const Promise = require("bluebird");
@@ -95,6 +96,18 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         return this.logManager.getLogger(name);
     }
     start() {
+        this.httpServer = new ThttpServer_1.ThttpServer("httpServer", this.config.services.httpServer);
+        this.registerService(this.httpServer);
+    }
+    registerModel(model) {
+        this.models[model.name] = model;
+        var endpoint = new model.entryPoint.class({
+            parentApi: this.httpServer.app,
+            path: "/api" + model.entryPoint.path,
+            model: model,
+            serviceClass: model.entryPoint.serviceClass
+        });
+        endpoint.init();
     }
     getDao(objectClassName, datasourceName = null) {
         var id = objectClassName + "." + datasourceName;
