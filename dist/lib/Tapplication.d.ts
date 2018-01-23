@@ -10,10 +10,10 @@ export declare class Tapplication extends TeventDispatcher {
     appVersion: string;
     config: any;
     services: TbaseService[];
+    models: {};
     logManager: TlogManager;
     logger: any;
     ClusterManager: IclusterManager;
-    models: object;
     httpServer: ThttpServer;
     private _daoList;
     constructor(config: any);

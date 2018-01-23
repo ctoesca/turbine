@@ -12,6 +12,7 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         this.appVersion = "1.0.0";
         this.config = null;
         this.services = [];
+        this.models = {};
         this.logger = null;
         this.ClusterManager = null;
         this._daoList = {};
@@ -113,12 +114,12 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         var id = objectClassName + "." + datasourceName;
         if (!this._daoList[id]) {
             let modelConfig;
-            if (!this.config.models)
+            if (!this.models)
                 throw "l'object 'models' n'existe pas dans la configuration";
-            else if (!this.config.models[objectClassName])
-                throw "Le model " + objectClassName + " n'est pas référencée dans la configuration";
+            else if (!this.models[objectClassName])
+                throw "Le model " + objectClassName + " n'est pas référencée";
             else
-                modelConfig = this.config.models[objectClassName];
+                modelConfig = this.models[objectClassName];
             if (!modelConfig.dao)
                 throw "Le model '" + objectClassName + "' n'a pas de dao défini";
             var daoConfig = null;
