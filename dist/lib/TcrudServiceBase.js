@@ -11,7 +11,7 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
         this.model = null;
         this.config = config;
         this.model = config.model;
-        app.logger.info("Creation TcrudServiceBase model.name='" + this.model.name + "'");
+        app.logger.debug("Creation TcrudServiceBase model.name='" + this.model.name + "'");
     }
     getDao() {
         if (this.dao == null)
