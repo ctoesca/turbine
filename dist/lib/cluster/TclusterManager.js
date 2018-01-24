@@ -39,7 +39,7 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
     onPossiblyUnhandledRejection(error) {
         this.redisErrors++;
         if (this.logger)
-            this.logger.error(error.toString());
+            this.logger.error("onPossiblyUnhandledRejection : ", error);
     }
     getHostName() {
         if (this.config.localhostName)
@@ -77,7 +77,7 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
                     isWorker: true
                 });
             }
-            cluster.on('disconnect', function (worker) {
+            cluster.on('disconnect', (worker) => {
                 this.logger.warn(`worker ${worker.id} disconnected`);
                 cluster.fork({
                     isFirstWorker: false,
@@ -89,17 +89,17 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
                     var message = { message: "!!!!!!!!!!!!!!!! LOCAL MASTER KILLED !!!!!!!!!!!!!!!" };
                     sendToAllWorkers(JSON.stringify(message));
                 }
-            }.bind(this));
+            });
             cluster.on('exit', (worker, code, signal) => {
                 this.logger.warn(`worker ${worker.process.pid} died code=` + code);
             });
-            cluster.on('fork', function (worker) {
+            cluster.on('fork', (worker) => {
                 this.logger.info("************ FORK WORKER **************");
                 if (this.localMasterPid == null) {
                     this.localMasterPid = worker.process.pid;
                     this.logger.info("*** LOCAL MASTER PID = " + this.localMasterPid + " ****");
                 }
-            }.bind(this));
+            });
         }
         else {
             process.on('message', this.onLocalClusterMessage.bind(this));
