@@ -147,6 +147,7 @@ class TredisHttp extends TbaseService_1.TbaseService {
     }
     getClient(db) {
         if (typeof this.clients[db] == "undefined") {
+            this.logger.info("Create redis client");
             var client = app.ClusterManager.getNewClient();
             this.clients[db] = client;
         }

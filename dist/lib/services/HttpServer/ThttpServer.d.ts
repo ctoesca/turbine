@@ -19,9 +19,12 @@ export declare class ThttpServer extends TbaseService {
         "executionPolicy": string;
         "http-access-log": {
             "enabled": boolean;
-            "rotating-period": string;
             "log-name": string;
             "log-dir": string;
+            "options": {
+                "size": string;
+                "maxFiles": number;
+            };
         };
         bindAddress: string;
         port: number;

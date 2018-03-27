@@ -136,7 +136,7 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
                             }
                         }
                         if (w.isServerMaster === true) {
-                            if (currentServerMaster == null) {
+                            if ((currentServerMaster == null) && (w.host == this.workerInfos.host)) {
                                 currentServerMaster = w;
                             }
                         }

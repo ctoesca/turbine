@@ -7,7 +7,7 @@ import { Tevent } from './events/Tevent';
 import { TlogManager } from './TlogManager';
 import * as Logger from 'bunyan';
 export declare class Tapplication extends TeventDispatcher {
-    appVersion: string;
+    appVersion: any;
     config: any;
     services: TbaseService[];
     models: {};

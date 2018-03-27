@@ -9,7 +9,10 @@ const dao = require("./dao");
 class Tapplication extends TeventDispatcher_1.TeventDispatcher {
     constructor(config) {
         super();
-        this.appVersion = "1.0.0";
+        this.appVersion = {
+            "name": "1.0.0",
+            "needReload": false
+        };
         this.config = null;
         this.services = [];
         this.models = {};

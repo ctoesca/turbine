@@ -11,11 +11,16 @@ export declare class TlogManager {
             "level": string;
             "streams": ({
                 "stream": NodeJS.WriteStream;
+                type?: undefined;
+                period?: undefined;
+                count?: undefined;
+                path?: undefined;
             } | {
                 "type": string;
                 "period": string;
                 "count": number;
                 "path": string;
+                stream?: undefined;
             })[];
         };
     };

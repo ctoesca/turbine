@@ -182,9 +182,12 @@ class ThttpServer extends TbaseService_js_1.TbaseService {
             "executionPolicy": "one_per_process",
             "http-access-log": {
                 "enabled": true,
-                "rotating-period": "7d",
                 "log-name": "access.log",
-                "log-dir": __dirname + "/../logs"
+                "log-dir": __dirname + "/../logs",
+                "options": {
+                    "size": "10M",
+                    "maxFiles": 7
+                }
             },
             bindAddress: "127.0.0.1",
             port: 8080,
