@@ -105,13 +105,15 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
     }
     registerModel(model) {
         this.models[model.name] = model;
-        var endpoint = new model.entryPoint.class({
-            parentApi: this.httpServer.app,
-            path: "/api" + model.entryPoint.path,
-            model: model,
-            serviceClass: model.entryPoint.serviceClass
-        });
-        endpoint.init();
+        if (model.entryPoint) {
+            var endpoint = new model.entryPoint.class({
+                parentApi: this.httpServer.app,
+                path: "/api" + model.entryPoint.path,
+                model: model,
+                serviceClass: model.entryPoint.serviceClass
+            });
+            endpoint.init();
+        }
     }
     getDao(objectClassName, datasourceName = null) {
         var id = objectClassName + "." + datasourceName;
