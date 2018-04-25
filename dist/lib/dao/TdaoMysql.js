@@ -697,7 +697,8 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
     _processObjects(objects, fields) {
         return new Promise(function (resolve, reject) {
             if (objects != null) {
-                this.getFields("view").then(function (result) {
+                this.getFields("view")
+                    .then(function (result) {
                     for (var i = 0; i < objects.length; i++) {
                         var obj = objects[i];
                         for (var k in obj) {

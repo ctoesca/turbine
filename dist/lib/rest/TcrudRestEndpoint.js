@@ -39,7 +39,7 @@ class TcrudRestEndpoint extends TrestEndpoint_1.TrestEndpoint {
     callService(req, res, next, f, ...args) {
         var service;
         var startTime = new Date().getTime();
-        this.getService(req)
+        return this.getService(req)
             .then((result) => {
             service = result;
             if (typeof service[f] == "function")
@@ -53,6 +53,7 @@ class TcrudRestEndpoint extends TrestEndpoint_1.TrestEndpoint {
             if (result == null)
                 throw new exceptions.NotFound();
             res.send(result);
+            return result;
         })
             .catch((err) => {
             service.free();
@@ -60,7 +61,6 @@ class TcrudRestEndpoint extends TrestEndpoint_1.TrestEndpoint {
         });
     }
     search(req, res, next) {
-        var startTime = new Date();
         var opt = {
             search: req.query.search,
             rechExacte: (req.query.rechExacte == "true") || (req.query.rechExacte == "1"),

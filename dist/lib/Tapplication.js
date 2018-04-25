@@ -108,7 +108,7 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         if (model.entryPoint) {
             var endpoint = new model.entryPoint.class({
                 parentApi: this.httpServer.app,
-                path: "/api" + model.entryPoint.path,
+                path: model.entryPoint.path,
                 model: model,
                 serviceClass: model.entryPoint.serviceClass
             });

@@ -80,7 +80,7 @@ class ThttpServer extends TbaseService_js_1.TbaseService {
     }
     setErrorsHandlers() {
         this.app.use(function (req, res, next) {
-            var err = new exceptions.NotFound('Not Found: ' + req.path);
+            var err = new exceptions.NotFound('Not Found');
             next(err);
         });
         this.app.use(function (err, req, res, next) {
@@ -98,9 +98,9 @@ class ThttpServer extends TbaseService_js_1.TbaseService {
                     status = 400;
             }
             if (status >= 500)
-                this.logger.error("***** ", err);
+                this.logger.error("***** " + status + " : " + req.method + " " + req.path, err);
             else
-                this.logger.error("***** ", err.toString());
+                this.logger.warn("***** " + status + " : " + req.method + " " + req.path, err.toString());
             if (!res.headersSent) {
                 res.status(status).send({
                     error: err.toString(),
