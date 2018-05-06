@@ -14,6 +14,7 @@ const exceptions = require("./lib/exceptions");
 exports.exceptions = exceptions;
 const services = require("./lib/services");
 exports.services = services;
+const Promise = require("bluebird");
 var Tapplication_1 = require("./lib/Tapplication");
 exports.Tapplication = Tapplication_1.Tapplication;
 var TcrudServiceBase_1 = require("./lib/TcrudServiceBase");

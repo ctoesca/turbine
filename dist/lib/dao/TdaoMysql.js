@@ -30,6 +30,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             this.IDFieldIsAuto = this.config.IDFieldIsAuto;
         this.cache = new NodeCache({ stdTTL: 3600 });
         this.datasource.multipleStatements = true;
+        this.datasource.dateStrings = true;
         this.poolname = this.datasource.host + "_" + this.datasource.database + "_" + this.datasource.port;
     }
     init() {
@@ -707,9 +708,6 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
                                     var type = this.viewfieldsByName[k].Type;
                                     if ((type == "bit(1)") && (typeof obj[k] == "object")) {
                                         obj[k] = (obj[k][0] === 1);
-                                    }
-                                    else if ((typeof obj[k] == "object") && ((type == "datetime") || (type == "timestamp"))) {
-                                        obj[k] = this.getMysqDateFromDate(obj[k]);
                                     }
                                 }
                             }

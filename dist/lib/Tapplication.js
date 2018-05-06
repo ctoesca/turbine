@@ -2,10 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const TclusterManager_1 = require("./cluster/TclusterManager");
 const ThttpServer_1 = require("./services/HttpServer/ThttpServer");
+const TcrudRestEndpoint_1 = require("./rest/TcrudRestEndpoint");
+const TcrudServiceBase_1 = require("./TcrudServiceBase");
+const TdaoMysql_1 = require("./dao/TdaoMysql");
 const TeventDispatcher_1 = require("./events/TeventDispatcher");
 const TlogManager_1 = require("./TlogManager");
 const Promise = require("bluebird");
-const dao = require("./dao");
 class Tapplication extends TeventDispatcher_1.TeventDispatcher {
     constructor(config) {
         super();
@@ -26,30 +28,31 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
     }
     init() {
         this.logger = this.getLogger("Application");
-        return this.registerModelFromFile(this.config.defaultModelsPath + "/models")
-            .then((result) => {
-            Promise.onPossiblyUnhandledRejection((error) => {
-                this.logger.error("onPossiblyUnhandledRejection", error);
-            });
-            var clusterManagerClass = TclusterManager_1.TclusterManager;
-            if (this.config.clusterManagerClass)
-                clusterManagerClass = this.config.clusterManagerClass;
-            this.ClusterManager = new clusterManagerClass(this, {
-                clusterName: this.config.clusterName,
-                numProcesses: this.config.numProcesses,
-                redis: this.config.redis
-            });
-            this.ClusterManager.start();
-            if (!this.ClusterManager.isMasterProcess) {
-                this.logger.info("Node worker started (PID=" + process.pid + ")");
-                this.ClusterManager.on("ISMASTER_CHANGED", this.onIsMasterChanged.bind(this));
-                this.ClusterManager.on("MASTER_SERVER_PROCESS_CHANGED", this.onServerMasterChanged.bind(this));
-                this.start();
-            }
-            else {
-                this.logger.info("Node master started (PID=" + process.pid + ")");
-            }
+        this.logger.info("************* INIT APPLICATION *************");
+        if (this.httpServer != null)
+            throw new Error("Tapplication.init() ne peut être appelé qu'une seule fois.");
+        Promise.onPossiblyUnhandledRejection((error) => {
+            this.logger.error("onPossiblyUnhandledRejection", error);
         });
+        var clusterManagerClass = TclusterManager_1.TclusterManager;
+        if (this.config.clusterManagerClass)
+            clusterManagerClass = this.config.clusterManagerClass;
+        this.ClusterManager = new clusterManagerClass(this, {
+            clusterName: this.config.clusterName,
+            numProcesses: this.config.numProcesses,
+            redis: this.config.redis
+        });
+        this.ClusterManager.start();
+        if (!this.ClusterManager.isMasterProcess) {
+            this.logger.info("Node worker started (PID=" + process.pid + ")");
+            this.ClusterManager.on("ISMASTER_CHANGED", this.onIsMasterChanged.bind(this));
+            this.ClusterManager.on("MASTER_SERVER_PROCESS_CHANGED", this.onServerMasterChanged.bind(this));
+            this.start();
+        }
+        else {
+            this.logger.info("Node master started (PID=" + process.pid + ")");
+            return Promise.resolve();
+        }
     }
     registerService(svc) {
         this.services.push(svc);
@@ -105,17 +108,25 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
     start() {
         this.httpServer = new ThttpServer_1.ThttpServer("httpServer", this.config.services.httpServer);
         this.registerService(this.httpServer);
+        return this.registerModelFromFile(this.config.defaultModelsPath + "/models");
     }
     registerModel(name, model) {
         if (typeof this.models[name] != "undefined")
             this.logger.warn("registerModelConfig: le model '" + name + "' a déjà été enregistré. Il va être écrasé.");
         this.models[name] = model;
+        model.name = name;
         if (model.entryPoint) {
-            var endpoint = new model.entryPoint.class({
+            var endpointClass = TcrudRestEndpoint_1.TcrudRestEndpoint;
+            if (model.entryPoint.class)
+                endpointClass = model.entryPoint.class;
+            var serviceClass = TcrudServiceBase_1.TcrudServiceBase;
+            if (model.entryPoint.serviceClass)
+                serviceClass = model.entryPoint.serviceClass;
+            var endpoint = new endpointClass({
                 parentApi: this.httpServer.app,
                 path: model.entryPoint.path,
                 model: model,
-                serviceClass: model.entryPoint.serviceClass
+                serviceClass: serviceClass
             });
             endpoint.init();
         }
@@ -136,35 +147,40 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         if (!this._daoList[id]) {
             let modelConfig;
             if (!this.models)
-                throw "l'objet 'models' n'existe pas dans la configuration";
+                throw new Error("l'objet 'models' n'existe pas dans la configuration");
             else if (!this.models[objectClassName])
-                throw "Le model " + objectClassName + " n'est pas référencée";
+                throw new Error("Le model " + objectClassName + " n'est pas référencée");
             else
                 modelConfig = this.models[objectClassName];
             if (!modelConfig.dao)
-                throw "Le model '" + objectClassName + "' n'a pas de dao défini";
+                throw new Error("Le model '" + objectClassName + "' n'a pas de dao défini");
             var daoConfig = null;
-            if (modelConfig.dao.daoConfig)
-                daoConfig = modelConfig.dao.daoConfig;
+            if (modelConfig.dao.config)
+                daoConfig = modelConfig.dao.config;
             else
-                throw "Le DAO du model '" + objectClassName + "' n'a pas de configuration définie";
+                throw new Error("Le DAO du model '" + objectClassName + "' n'a pas de configuration définie");
             if (datasourceName == null) {
                 if (daoConfig.datasource)
                     datasourceName = daoConfig.datasource;
                 else
-                    throw "Le dao du model '" + objectClassName + "' n'a pas de datasource par défaut";
+                    throw new Error("Le dao du model '" + objectClassName + "' n'a pas de datasource par défaut");
             }
             if (typeof this.config.datasources[datasourceName] == "undefined")
-                throw "Le datasource " + datasourceName + " n'est pas référencée dans la configuration";
+                throw new Error("Le datasource " + datasourceName + " n'est pas référencée dans la configuration");
             let datasource = this.config.datasources[datasourceName];
-            var clazz = dao.TdaoMysql;
+            var clazz = TdaoMysql_1.TdaoMysql;
             if (modelConfig.dao.class) {
                 clazz = modelConfig.dao.class;
             }
             this._daoList[id] = new clazz(objectClassName, datasource, daoConfig);
-            return this._daoList[id].init();
+            return this._daoList[id].init()
+                .then(() => {
+                return this._daoList[id];
+            });
         }
-        return Promise.resolve(this._daoList[id]);
+        else {
+            return Promise.resolve(this._daoList[id]);
+        }
     }
 }
 exports.Tapplication = Tapplication;

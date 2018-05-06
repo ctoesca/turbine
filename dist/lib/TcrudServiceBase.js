@@ -72,10 +72,10 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
         });
     }
     search(opt) {
-        return new Promise(function (resolve, reject) {
-            var dao = this.getDao();
-            resolve(dao.search(opt));
-        }.bind(this));
+        return this.getDao()
+            .then((dao) => {
+            return dao.search(opt);
+        });
     }
 }
 exports.TcrudServiceBase = TcrudServiceBase;

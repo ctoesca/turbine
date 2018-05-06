@@ -14,7 +14,7 @@ export declare class TdaoMysql extends TdaoBase {
     poolname: any;
     static pool: any;
     constructor(objectClassName: any, datasource: any, config: any);
-    init(): Promise<{}>;
+    init(): Promise<any>;
     pad(number: any): any;
     getMysqDateFromDate(d: any): string;
     getPool(): any;
@@ -47,7 +47,7 @@ export declare class TdaoMysql extends TdaoBase {
     getSearchQuery(opt: any): Promise<{}>;
     search(opt: any): Promise<{}>;
     _processObjects(objects: any, fields: any): Promise<{}>;
-    processObjects(objects: any, fields: any): any;
+    processObjects(objects: any, fields: any): Promise<any>;
     onConnectionOpen(err: any): void;
     onConnectionClosed(err: any): void;
     onConnectionError(err: any): void;

@@ -25,7 +25,7 @@ export declare class Tapplication extends TeventDispatcher {
     onServerMasterChanged(e: Tevent): void;
     onIsMasterChanged(e: Tevent): void;
     getLogger(name: string): Logger;
-    start(): void;
+    start(): Promise<any>;
     registerModel(name: string, model: any): any;
     registerModelFromFile(path: string): Promise<any>;
     getDao(objectClassName: any, datasourceName?: any): Promise<any>;

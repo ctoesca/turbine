@@ -38,8 +38,10 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
     }
     onPossiblyUnhandledRejection(error) {
         this.redisErrors++;
-        if (this.logger)
+        if (this.logger) {
             this.logger.error("onPossiblyUnhandledRejection : ", error);
+            this.logger.error(error.stack);
+        }
     }
     getHostName() {
         if (this.config.localhostName)
