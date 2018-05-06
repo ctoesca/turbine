@@ -20,11 +20,11 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         this.ClusterManager = null;
         this._daoList = {};
         this.config = config;
+        this.logManager = new TlogManager_1.TlogManager(this.config.logs);
         if (!this.config.clusterName)
             this.config.clusterName = "turbine";
     }
     init() {
-        this.logManager = new TlogManager_1.TlogManager(this.config.logs);
         this.logger = this.getLogger("Application");
         return this.registerModelFromFile(this.config.defaultModelsPath + "/models")
             .then((result) => {

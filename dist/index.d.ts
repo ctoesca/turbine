@@ -8,4 +8,4 @@ import * as services from './lib/services';
 export { Tapplication } from './lib/Tapplication';
 export { TcrudServiceBase } from './lib/TcrudServiceBase';
 export { services, events, tools, dao, cluster, rest, exceptions };
-export declare function _import(module: any): Promise<any>;
+export declare function _import(module: any): Promise<{}>;

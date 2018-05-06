@@ -28,5 +28,5 @@ export declare class Tapplication extends TeventDispatcher {
     start(): void;
     registerModel(name: string, model: any): any;
     registerModelFromFile(path: string): Promise<any>;
-    getDao(objectClassName: any, datasourceName?: any): any;
+    getDao(objectClassName: any, datasourceName?: any): Promise<any>;
 }

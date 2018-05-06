@@ -19,7 +19,13 @@ exports.Tapplication = Tapplication_1.Tapplication;
 var TcrudServiceBase_1 = require("./lib/TcrudServiceBase");
 exports.TcrudServiceBase = TcrudServiceBase_1.TcrudServiceBase;
 function _import(module) {
-    return Promise.resolve().then(() => require(module));
+    return new Promise(function (resolve, reject) {
+        Promise.resolve().then(() => require(module)).then(function (clazz) {
+            resolve(clazz);
+        }, function (err) {
+            reject(err);
+        });
+    });
 }
 exports._import = _import;
 //# sourceMappingURL=index.js.map
