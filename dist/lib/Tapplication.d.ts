@@ -1,3 +1,4 @@
+/// <reference types="bluebird" />
 /// <reference types="bunyan" />
 import { IclusterManager } from './cluster/IclusterManager';
 import { TbaseService } from './services/TbaseService';
@@ -6,6 +7,7 @@ import { TeventDispatcher } from './events/TeventDispatcher';
 import { Tevent } from './events/Tevent';
 import { TlogManager } from './TlogManager';
 import * as Logger from 'bunyan';
+import Promise = require('bluebird');
 export declare class Tapplication extends TeventDispatcher {
     appVersion: any;
     config: any;
@@ -17,13 +19,14 @@ export declare class Tapplication extends TeventDispatcher {
     httpServer: ThttpServer;
     private _daoList;
     constructor(config: any);
-    init(): void;
+    init(): Promise<any>;
     registerService(svc: TbaseService): void;
     getService(name: string): TbaseService;
     onServerMasterChanged(e: Tevent): void;
     onIsMasterChanged(e: Tevent): void;
     getLogger(name: string): Logger;
     start(): void;
-    registerModel(model: any): void;
+    registerModel(name: string, model: any): void;
+    registerModelFromFile(path: string): any;
     getDao(objectClassName: any, datasourceName?: any): any;
 }

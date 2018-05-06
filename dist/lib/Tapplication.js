@@ -24,29 +24,32 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
             this.config.clusterName = "turbine";
     }
     init() {
-        this.logManager = new TlogManager_1.TlogManager(this.config.logs);
-        this.logger = this.getLogger("Application");
-        Promise.onPossiblyUnhandledRejection((error) => {
-            this.logger.error("onPossiblyUnhandledRejection", error);
+        return this.registerModelFromFile("./models/models")
+            .then((result) => {
+            this.logManager = new TlogManager_1.TlogManager(this.config.logs);
+            this.logger = this.getLogger("Application");
+            Promise.onPossiblyUnhandledRejection((error) => {
+                this.logger.error("onPossiblyUnhandledRejection", error);
+            });
+            var clusterManagerClass = TclusterManager_1.TclusterManager;
+            if (this.config.clusterManagerClass)
+                clusterManagerClass = this.config.clusterManagerClass;
+            this.ClusterManager = new clusterManagerClass(this, {
+                clusterName: this.config.clusterName,
+                numProcesses: this.config.numProcesses,
+                redis: this.config.redis
+            });
+            this.ClusterManager.start();
+            if (!this.ClusterManager.isMasterProcess) {
+                this.logger.info("Node worker started (PID=" + process.pid + ")");
+                this.ClusterManager.on("ISMASTER_CHANGED", this.onIsMasterChanged.bind(this));
+                this.ClusterManager.on("MASTER_SERVER_PROCESS_CHANGED", this.onServerMasterChanged.bind(this));
+                this.start();
+            }
+            else {
+                this.logger.info("Node master started (PID=" + process.pid + ")");
+            }
         });
-        var clusterManagerClass = TclusterManager_1.TclusterManager;
-        if (this.config.clusterManagerClass)
-            clusterManagerClass = this.config.clusterManagerClass;
-        this.ClusterManager = new clusterManagerClass(this, {
-            clusterName: this.config.clusterName,
-            numProcesses: this.config.numProcesses,
-            redis: this.config.redis
-        });
-        this.ClusterManager.start();
-        if (!this.ClusterManager.isMasterProcess) {
-            this.logger.info("Node worker started (PID=" + process.pid + ")");
-            this.ClusterManager.on("ISMASTER_CHANGED", this.onIsMasterChanged.bind(this));
-            this.ClusterManager.on("MASTER_SERVER_PROCESS_CHANGED", this.onServerMasterChanged.bind(this));
-            this.start();
-        }
-        else {
-            this.logger.info("Node master started (PID=" + process.pid + ")");
-        }
     }
     registerService(svc) {
         this.services.push(svc);
@@ -103,8 +106,10 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         this.httpServer = new ThttpServer_1.ThttpServer("httpServer", this.config.services.httpServer);
         this.registerService(this.httpServer);
     }
-    registerModel(model) {
-        this.models[model.name] = model;
+    registerModel(name, model) {
+        if (typeof this.models[name] != "undefined")
+            this.logger.warn("registerModelConfig: le model '" + name + "' a déjà été enregistré. Il va être écrasé.");
+        this.models[name] = model;
         if (model.entryPoint) {
             var endpoint = new model.entryPoint.class({
                 parentApi: this.httpServer.app,
@@ -114,13 +119,21 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
             });
             endpoint.init();
         }
+        this.logger.info("Register model '" + name + "' => SUCCESS");
+    }
+    registerModelFromFile(path) {
+        return require(path)
+            .then((conf) => {
+            for (let modelName in conf)
+                this.registerModel(modelName, conf[modelName]);
+        });
     }
     getDao(objectClassName, datasourceName = null) {
         var id = objectClassName + "." + datasourceName;
         if (!this._daoList[id]) {
             let modelConfig;
             if (!this.models)
-                throw "l'object 'models' n'existe pas dans la configuration";
+                throw "l'objet 'models' n'existe pas dans la configuration";
             else if (!this.models[objectClassName])
                 throw "Le model " + objectClassName + " n'est pas référencée";
             else
@@ -146,9 +159,9 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
                 clazz = modelConfig.dao.class;
             }
             this._daoList[id] = new clazz(objectClassName, datasource, daoConfig);
-            this._daoList[id].init();
+            return this._daoList[id].init();
         }
-        return this._daoList[id];
+        return Promise.resolve(this._daoList[id]);
     }
 }
 exports.Tapplication = Tapplication;
