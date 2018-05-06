@@ -24,10 +24,10 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
             this.config.clusterName = "turbine";
     }
     init() {
-        return this.registerModelFromFile("./models/models")
+        this.logManager = new TlogManager_1.TlogManager(this.config.logs);
+        this.logger = this.getLogger("Application");
+        return this.registerModelFromFile(this.config.defaultModelsPath + "/models")
             .then((result) => {
-            this.logManager = new TlogManager_1.TlogManager(this.config.logs);
-            this.logger = this.getLogger("Application");
             Promise.onPossiblyUnhandledRejection((error) => {
                 this.logger.error("onPossiblyUnhandledRejection", error);
             });
@@ -120,12 +120,15 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
             endpoint.init();
         }
         this.logger.info("Register model '" + name + "' => SUCCESS");
+        return this.models[name];
     }
     registerModelFromFile(path) {
-        return require(path)
-            .then((conf) => {
-            for (let modelName in conf)
-                this.registerModel(modelName, conf[modelName]);
+        return new Promise((resolve, reject) => {
+            Promise.resolve().then(() => require(path)).then((conf) => {
+                for (let modelName in conf)
+                    this.registerModel(modelName, conf[modelName]);
+                resolve();
+            });
         });
     }
     getDao(objectClassName, datasourceName = null) {
