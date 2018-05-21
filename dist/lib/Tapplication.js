@@ -117,10 +117,10 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         model.name = name;
         if (model.entryPoint) {
             var endpointClass = TcrudRestEndpoint_1.TcrudRestEndpoint;
-            if (model.entryPoint.class)
+            if (typeof model.entryPoint.class != "undefined")
                 endpointClass = model.entryPoint.class;
             var serviceClass = TcrudServiceBase_1.TcrudServiceBase;
-            if (model.entryPoint.serviceClass)
+            if (typeof model.entryPoint.serviceClass != "undefined")
                 serviceClass = model.entryPoint.serviceClass;
             var endpoint = new endpointClass({
                 parentApi: this.httpServer.app,
@@ -159,6 +159,7 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
                 daoConfig = modelConfig.dao.config;
             else
                 throw new Error("Le DAO du model '" + objectClassName + "' n'a pas de configuration définie");
+            daoConfig.model = modelConfig;
             if (datasourceName == null) {
                 if (daoConfig.datasource)
                     datasourceName = daoConfig.datasource;

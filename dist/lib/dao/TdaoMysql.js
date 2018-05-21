@@ -22,10 +22,10 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         this.viewTable = this.table;
         if (this.config.viewName)
             this.viewTable = this.config.viewName;
-        if (this.config.IDField)
-            this.IDField = this.config.IDField;
-        if (this.config.IDFieldType)
-            this.IDFieldType = this.config.IDFieldType;
+        if (this.config.model.IDField)
+            this.IDField = this.config.model.IDField;
+        if (this.config.model.IDFieldType)
+            this.IDFieldType = this.config.model.IDFieldType;
         if (typeof this.config.IDFieldIsAuto != "undefined")
             this.IDFieldIsAuto = this.config.IDFieldIsAuto;
         this.cache = new NodeCache({ stdTTL: 3600 });
@@ -308,7 +308,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             if (bddObject == null)
                 throw "Object " + id + " does not exists";
             else
-                return this.queryTransaction("DELETE from " + this.table + " WHERE " + this.IDField + " = " + id);
+                return this.queryTransaction("DELETE from " + this.table + " WHERE " + this.IDField + " = '" + id + "'");
         }.bind(this))
             .then(function (result) {
             if (result.affectedRows == 0)
