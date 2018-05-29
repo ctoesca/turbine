@@ -275,7 +275,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             if (parseInt(value) != value)
                 return Promise.reject("L'id doit être de type 'integer'. Valeur donnée: " + value);
         }
-        var sql = "select * from " + this.viewTable + " where " + this.IDField + " = " + value;
+        var sql = "select * from " + this.viewTable + " where " + this.IDField + " = " + value + " LIMIT 1";
         return this.query(sql)
             .then(function (result) {
             if (result.length > 0)
