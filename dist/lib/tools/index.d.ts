@@ -1,5 +1,3 @@
-/// <reference types="express" />
-/// <reference types="bluebird" />
 import Promise = require("bluebird");
 import express = require("express");
 import * as StringPrototype from "./String.prototype";

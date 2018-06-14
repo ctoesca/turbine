@@ -1,4 +1,4 @@
-declare global  {
+declare global {
     interface String {
         rightOf(s: string): string;
         leftOf(s: string): string;

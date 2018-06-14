@@ -1,4 +1,3 @@
-/// <reference types="bunyan" />
 import { TeventDispatcher } from '../events/TeventDispatcher';
 import * as Logger from "bunyan";
 export declare abstract class TbaseService extends TeventDispatcher {

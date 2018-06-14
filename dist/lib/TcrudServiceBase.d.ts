@@ -1,4 +1,3 @@
-/// <reference types="bluebird" />
 import { TeventDispatcher } from './events/TeventDispatcher';
 import { TdaoMysql } from './dao/TdaoMysql';
 import Promise = require("bluebird");

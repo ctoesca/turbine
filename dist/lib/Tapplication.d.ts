@@ -1,5 +1,3 @@
-/// <reference types="bluebird" />
-/// <reference types="bunyan" />
 import { IclusterManager } from './cluster/IclusterManager';
 import { TbaseService } from './services/TbaseService';
 import { ThttpServer } from "./services/HttpServer/ThttpServer";

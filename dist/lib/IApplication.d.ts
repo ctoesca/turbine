@@ -1,4 +1,3 @@
-/// <reference types="bunyan" />
 import { TeventDispatcher } from './events/TeventDispatcher';
 import { TbaseService } from './services/TbaseService';
 import * as Logger from 'bunyan';

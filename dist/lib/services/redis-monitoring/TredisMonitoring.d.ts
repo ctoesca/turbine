@@ -1,4 +1,3 @@
-/// <reference types="bluebird" />
 import { Ttimer } from '../../tools/Ttimer';
 import { TwindowsServiceManager } from '../../tools/TwindowsServiceManager';
 import { TbaseService } from '../TbaseService';

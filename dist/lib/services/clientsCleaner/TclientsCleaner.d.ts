@@ -1,4 +1,3 @@
-/// <reference types="bluebird" />
 import Promise = require("bluebird");
 import { TbaseService } from '../TbaseService';
 import { Ttimer } from '../../tools/Ttimer';

@@ -1,5 +1,3 @@
-/// <reference types="express" />
-/// <reference types="bluebird" />
 import { TbaseService } from '../TbaseService.js';
 import express = require('express');
 import Promise = require("bluebird");

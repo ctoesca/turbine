@@ -1,4 +1,3 @@
-/// <reference types="bluebird" />
 import { TdaoBase } from './TdaoBase';
 import Promise = require("bluebird");
 export declare class TdaoMysql extends TdaoBase {

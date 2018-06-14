@@ -1,4 +1,3 @@
-/// <reference types="express" />
 import { TrestEndpoint } from './TrestEndpoint';
 import { TcrudServiceBase } from '../TcrudServiceBase';
 import express = require('express');

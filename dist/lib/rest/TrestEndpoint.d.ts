@@ -1,4 +1,3 @@
-/// <reference types="express" />
 import { TeventDispatcher } from '../events/TeventDispatcher';
 import express = require('express');
 export declare class TrestEndpoint extends TeventDispatcher {

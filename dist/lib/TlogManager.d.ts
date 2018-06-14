@@ -1,5 +1,4 @@
 /// <reference types="node" />
-/// <reference types="bunyan" />
 import * as Logger from "bunyan";
 export declare class TlogManager {
     config: any;
@@ -11,16 +10,16 @@ export declare class TlogManager {
             "level": string;
             "streams": ({
                 "stream": NodeJS.WriteStream;
-                type?: undefined;
-                period?: undefined;
-                count?: undefined;
-                path?: undefined;
+                "type"?: undefined;
+                "period"?: undefined;
+                "count"?: undefined;
+                "path"?: undefined;
             } | {
                 "type": string;
                 "period": string;
                 "count": number;
                 "path": string;
-                stream?: undefined;
+                "stream"?: undefined;
             })[];
         };
     };

@@ -1,4 +1,3 @@
-/// <reference types="express" />
 import { TbaseService } from '../TbaseService';
 import { ThttpServer } from '../HttpServer/ThttpServer';
 import express = require('express');

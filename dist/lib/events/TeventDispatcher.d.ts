@@ -5,7 +5,7 @@ export declare class TeventDispatcher {
     constructor(args?: any);
     readonly isDestroyed: boolean;
     free(): void;
-    private _getListenerIndex(type, listener);
+    private _getListenerIndex;
     dispatchEvent(event: Tevent): void;
     on(type: string, listener: (evt: Tevent) => void, bind?: any, data?: any): void;
     offByCtx(ctx: any): void;

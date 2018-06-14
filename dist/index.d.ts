@@ -1,4 +1,3 @@
-/// <reference types="bluebird" />
 import * as events from './lib/events';
 import * as tools from './lib/tools';
 import * as dao from './lib/dao';
