@@ -1,6 +1,7 @@
 import { IclusterManager } from './cluster/IclusterManager';
 import { TbaseService } from './services/TbaseService';
 import { ThttpServer } from "./services/HttpServer/ThttpServer";
+import express = require('express');
 import { TeventDispatcher } from './events/TeventDispatcher';
 import { Tevent } from './events/Tevent';
 import { TlogManager } from './TlogManager';
@@ -15,9 +16,12 @@ export declare class Tapplication extends TeventDispatcher {
     logger: any;
     ClusterManager: IclusterManager;
     httpServer: ThttpServer;
+    sessionName: string;
     private _daoList;
     constructor(config: any);
     init(): Promise<any>;
+    getCookies(req: express.Request): {};
+    getUserSession(req: express.Request): Promise<{}>;
     registerService(svc: TbaseService): void;
     getService(name: string): TbaseService;
     onServerMasterChanged(e: Tevent): void;

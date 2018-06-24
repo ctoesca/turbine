@@ -20,6 +20,7 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         this.models = {};
         this.logger = null;
         this.ClusterManager = null;
+        this.sessionName = "ctop";
         this._daoList = {};
         this.config = config;
         this.logManager = new TlogManager_1.TlogManager(this.config.logs);
@@ -52,6 +53,37 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         else {
             this.logger.info("Node master started (PID=" + process.pid + ")");
             return Promise.resolve();
+        }
+    }
+    getCookies(req) {
+        var cookies = {};
+        var cookieHeader = req.headers.cookie;
+        if (cookieHeader) {
+            cookieHeader.split(';').forEach(function (cookie) {
+                var parts = cookie.split('=');
+                cookies[parts.shift().trim()] = decodeURI(parts[0]);
+            });
+        }
+        return cookies;
+    }
+    getUserSession(req) {
+        var r = null;
+        var cookies = this.getCookies(req);
+        if (cookies["ctop"]) {
+            return this.ClusterManager.getClient().hget("session." + this.sessionName, cookies[this.sessionName])
+                .then(function (session) {
+                if (session)
+                    return JSON.parse(session);
+                else
+                    return null;
+            })
+                .catch(function (err) {
+                this.logger.error("getUserSession", err);
+                throw err;
+            }.bind(this));
+        }
+        else {
+            return Promise.resolve(null);
         }
     }
     registerService(svc) {
