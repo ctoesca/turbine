@@ -69,7 +69,7 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
     getUserSession(req) {
         var r = null;
         var cookies = this.getCookies(req);
-        if (cookies["ctop"]) {
+        if (cookies[this.sessionName]) {
             return this.ClusterManager.getClient().hget("session." + this.sessionName, cookies[this.sessionName])
                 .then(function (session) {
                 if (session)
