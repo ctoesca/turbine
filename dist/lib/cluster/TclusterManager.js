@@ -243,7 +243,7 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
             if (!options.keyPrefix)
                 options.keyPrefix = this.config.clusterName;
             this.keyPrefix = options.keyPrefix;
-            this.logger.debug("Creating redis client");
+            this.logger.debug("Creating redis client - keyPrefix = " + options.keyPrefix);
             r = new Redis(options);
         }
         return r;

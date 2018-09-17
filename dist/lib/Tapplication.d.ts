@@ -1,3 +1,4 @@
+/// <reference types="express-serve-static-core" />
 import { IclusterManager } from './cluster/IclusterManager';
 import { TbaseService } from './services/TbaseService';
 import { ThttpServer } from "./services/HttpServer/ThttpServer";
@@ -28,7 +29,7 @@ export declare class Tapplication extends TeventDispatcher {
     onIsMasterChanged(e: Tevent): void;
     getLogger(name: string): Logger;
     start(): Promise<any>;
-    registerModel(name: string, model: any): any;
+    registerModel(name: string, model: any, app?: Express.Application): any;
     registerModelFromFile(path: string): Promise<any>;
     getDao(objectClassName: any, datasourceName?: any): Promise<any>;
 }

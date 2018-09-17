@@ -6,6 +6,7 @@ export declare class TcrudServiceBase extends TeventDispatcher {
     dao: TdaoMysql;
     user: any;
     model: any;
+    channelName: string;
     constructor(config: any);
     getDao(): Promise<TdaoMysql>;
     getById(id: any, opt: any): Promise<any>;

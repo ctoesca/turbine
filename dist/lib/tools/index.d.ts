@@ -8,4 +8,5 @@ export declare function replaceEnvVars(v: string): string;
 export declare function getIpClient(req: express.Request): string;
 export declare function randomBetween(min: number, max: number): number;
 export declare function checkPort(host: string, port: number, rejectIfNotOpened?: boolean): Promise<{}>;
+export declare function generateUUID(): string;
 export declare function array_replace_recursive(arr: any, ...arrays: any[]): {};

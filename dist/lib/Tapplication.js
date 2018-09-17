@@ -142,7 +142,7 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         this.registerService(this.httpServer);
         return this.registerModelFromFile(this.config.defaultModelsPath + "/models");
     }
-    registerModel(name, model) {
+    registerModel(name, model, app = null) {
         if (typeof this.models[name] != "undefined")
             this.logger.warn("registerModelConfig: le model '" + name + "' a déjà été enregistré. Il va être écrasé.");
         this.models[name] = model;
@@ -154,8 +154,10 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
             var serviceClass = TcrudServiceBase_1.TcrudServiceBase;
             if (typeof model.entryPoint.serviceClass != "undefined")
                 serviceClass = model.entryPoint.serviceClass;
+            if (app == null)
+                app = this.httpServer.app;
             var endpoint = new endpointClass({
-                parentApi: this.httpServer.app,
+                parentApi: app,
                 path: model.entryPoint.path,
                 model: model,
                 serviceClass: serviceClass
