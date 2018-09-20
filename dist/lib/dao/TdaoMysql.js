@@ -189,6 +189,8 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         var sql = "select " + opt.fields + " from " + this.viewTable;
         if (opt.where)
             sql += " where " + opt.where;
+        if (opt.groupBy)
+            sql += " GROUP BY " + opt.groupBy;
         if (opt.orderBy)
             sql += " ORDER BY " + opt.orderBy;
         if (opt.limit)
@@ -229,9 +231,9 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             return Promise.resolve(this[type + "fieldsByName"]);
         }
     }
-    getByIds(idList, opt) {
+    getByIds(idList, opt = null) {
         var defautlOpt = { throwIfIncomplete: false };
-        if (arguments.length < 2) {
+        if (!opt) {
             opt = defautlOpt;
         }
         else {
@@ -266,7 +268,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             return this._processObjects(result2);
         }.bind(this));
     }
-    getById(id) {
+    getById(id, opt = null) {
         var value = id;
         if (this.IDFieldType == "string") {
             value = "'" + id + "'";
@@ -275,7 +277,10 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             if (parseInt(value) != value)
                 return Promise.reject("L'id doit être de type 'integer'. Valeur donnée: " + value);
         }
-        var sql = "select * from " + this.viewTable + " where " + this.IDField + " = " + value + " LIMIT 1";
+        var fields = "*";
+        if (opt && opt.fields)
+            fields = opt.fields;
+        var sql = "select " + fields + " from " + this.viewTable + " where " + this.IDField + " = " + value + " LIMIT 1";
         return this.query(sql)
             .then(function (result) {
             if (result.length > 0)
@@ -708,6 +713,10 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
                                     var type = this.viewfieldsByName[k].Type;
                                     if ((type == "bit(1)") && (typeof obj[k] == "object")) {
                                         obj[k] = (obj[k][0] === 1);
+                                    }
+                                    else if (typeof obj[k] == "string") {
+                                        if (this.jsonFields && this.jsonFields[k])
+                                            obj[k] = JSON.parse(obj[k]);
                                     }
                                 }
                             }

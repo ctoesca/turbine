@@ -30,8 +30,8 @@ export declare class TdaoMysql extends TdaoBase {
     selectOne(opt: any): Promise<any>;
     empty(success: any, failure: any): Promise<{}>;
     getFields(type: any, opt?: any): Promise<any>;
-    getByIds(idList: any, opt: any): Promise<{}>;
-    getById(id: any): Promise<any>;
+    getByIds(idList: any, opt?: any): Promise<{}>;
+    getById(id: any, opt?: any): Promise<any>;
     delete(opt: any): Promise<{}>;
     deleteById(id: any, opt: any): Promise<{}>;
     save(obj: any, opt?: {}): Promise<{}>;

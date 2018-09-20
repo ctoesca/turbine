@@ -156,13 +156,15 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
                 serviceClass = model.entryPoint.serviceClass;
             if (app == null)
                 app = this.httpServer.app;
-            var endpoint = new endpointClass({
-                parentApi: app,
-                path: model.entryPoint.path,
-                model: model,
-                serviceClass: serviceClass
-            });
-            endpoint.init();
+            if (model.entryPoint.path) {
+                var endpoint = new endpointClass({
+                    parentApi: app,
+                    path: model.entryPoint.path,
+                    model: model,
+                    serviceClass: serviceClass
+                });
+                endpoint.init();
+            }
         }
         this.logger.info("Register model '" + name + "' => SUCCESS");
         return this.models[name];
