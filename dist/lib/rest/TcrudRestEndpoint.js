@@ -77,27 +77,28 @@ class TcrudRestEndpoint extends TrestEndpoint_1.TrestEndpoint {
     }
     getById(req, res, next) {
         var id = req.params.id;
-        var opt = {};
+        var u = url.parse(req.url, true);
+        var opt = u.query;
         this.callService(req, res, next, "getById", id, opt);
     }
     deleteById(req, res, next) {
-        var u = url.parse(req.url, true);
         var id = req.params.id;
-        var opt = {};
+        var u = url.parse(req.url, true);
+        var opt = u.query;
         this.callService(req, res, next, "deleteById", id, opt);
     }
     create(req, res, next) {
         var u = url.parse(req.url, true);
+        var opt = u.query;
         var obj = req.body;
-        var opt = {};
         this.callService(req, res, next, "save", obj, opt);
     }
     update(req, res, next) {
         var u = url.parse(req.url, true);
+        var opt = u.query;
         var id = req.params.id;
         var obj = req.body;
         obj.id = id;
-        var opt = {};
         this.callService(req, res, next, "save", obj, opt);
     }
 }

@@ -11,10 +11,10 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
         this.model = null;
         this.channelName = null;
         this.config = config;
-        if (typeof this.config.channelName != "undefined")
-            this.channelName = this.config.channelName;
+        if (typeof this.config.model.channelName != "undefined")
+            this.channelName = this.config.model.channelName;
         this.model = config.model;
-        app.logger.debug("Creation TcrudServiceBase model.name='" + this.model.name + "'");
+        app.logger.debug("Creation TcrudServiceBase model.name='" + this.model.name + "'", this.config);
     }
     getDao() {
         if (this.dao == null)
@@ -28,7 +28,7 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
             return dao.getById(id);
         });
     }
-    save(obj, opt) {
+    save(obj, opt = null) {
         app.logger.debug("SAVE ", obj);
         return this.getDao()
             .then((dao) => {
@@ -71,7 +71,8 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
                     clientId: opt.clientId
                 }
             };
-            app.pubSubServer.broadcast({ type: 'publish', channel: "strongbox.ressources." + this.model.name, payload: payload });
+            if (this.channelName)
+                app.pubSubServer.broadcast({ type: 'publish', channel: this.channelName, payload: payload });
             return result;
         });
     }

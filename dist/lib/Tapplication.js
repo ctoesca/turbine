@@ -48,6 +48,8 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
             this.logger.info("Node worker started (PID=" + process.pid + ")");
             this.ClusterManager.on("ISMASTER_CHANGED", this.onIsMasterChanged.bind(this));
             this.ClusterManager.on("MASTER_SERVER_PROCESS_CHANGED", this.onServerMasterChanged.bind(this));
+            this.httpServer = new ThttpServer_1.ThttpServer("httpServer", this.config.services.httpServer);
+            this.registerService(this.httpServer);
             this.start();
         }
         else {
@@ -138,8 +140,6 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         return this.logManager.getLogger(name);
     }
     start() {
-        this.httpServer = new ThttpServer_1.ThttpServer("httpServer", this.config.services.httpServer);
-        this.registerService(this.httpServer);
         return this.registerModelFromFile(this.config.defaultModelsPath + "/models");
     }
     registerModel(name, model, app = null) {

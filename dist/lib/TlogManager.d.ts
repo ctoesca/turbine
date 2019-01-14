@@ -24,5 +24,5 @@ export declare class TlogManager {
         };
     };
     getLogsConfig(): any;
-    getLogger(name?: string): Logger;
+    getLogger(name?: string, loggerConf?: any): Logger;
 }

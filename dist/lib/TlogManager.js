@@ -55,13 +55,18 @@ class TlogManager {
         }
         return this.logsConfig;
     }
-    getLogger(name = null) {
+    getLogger(name = null, loggerConf = null) {
         if (name == null)
             name = "Main";
         if (typeof this._loggers[name] == "undefined") {
-            var loggerConf = this.getLogsConfig().logger;
-            loggerConf.name = name;
-            this._loggers[name] = Logger.createLogger(loggerConf);
+            if (loggerConf) {
+                this._loggers[name] = Logger.createLogger(loggerConf);
+            }
+            else {
+                var loggerConf = this.getLogsConfig().logger;
+                loggerConf.name = name;
+                this._loggers[name] = Logger.createLogger(loggerConf);
+            }
         }
         return this._loggers[name];
     }
