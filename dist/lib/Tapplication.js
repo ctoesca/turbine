@@ -20,9 +20,10 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         this.models = {};
         this.logger = null;
         this.ClusterManager = null;
-        this.sessionName = "ctop";
+        this.sessionName = null;
         this._daoList = {};
         this.config = config;
+        this.sessionName = config.services.httpServer.session.options.name;
         this.logManager = new TlogManager_1.TlogManager(this.config.logs);
         if (!this.config.clusterName)
             this.config.clusterName = "turbine";
