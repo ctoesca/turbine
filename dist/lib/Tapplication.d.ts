@@ -1,4 +1,3 @@
-/// <reference types="express-serve-static-core" />
 import { IclusterManager } from './cluster/IclusterManager';
 import { TbaseService } from './services/TbaseService';
 import { ThttpServer } from "./services/HttpServer/ThttpServer";
@@ -8,6 +7,7 @@ import { Tevent } from './events/Tevent';
 import { TlogManager } from './TlogManager';
 import * as Logger from 'bunyan';
 import Promise = require('bluebird');
+import Express = require("Express");
 export declare class Tapplication extends TeventDispatcher {
     appVersion: any;
     config: any;

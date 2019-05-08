@@ -18,13 +18,13 @@ function replaceEnvVars(v) {
 }
 exports.replaceEnvVars = replaceEnvVars;
 function getIpClient(req) {
-    var ip = req.header('X-Forwarded-For');
+    var ip = req.headers['x-forwarded-for'];
     if (!ip)
         ip = req.connection.remoteAddress;
     if (ip == "::1")
         ip = "127.0.0.1";
-    if (ip.startsWith("::ffff:"))
-        ip = ip.rightOf("::ffff:");
+    if (ip.substr(0, 7) == "::ffff:")
+        ip = ip.substr(7);
     return ip;
 }
 exports.getIpClient = getIpClient;
