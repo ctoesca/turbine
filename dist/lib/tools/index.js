@@ -19,12 +19,15 @@ function replaceEnvVars(v) {
 exports.replaceEnvVars = replaceEnvVars;
 function getIpClient(req) {
     var ip = req.headers['x-forwarded-for'];
-    if (!ip)
+    if (!ip) {
         ip = req.connection.remoteAddress;
-    if (ip == "::1")
-        ip = "127.0.0.1";
-    if (ip.substr(0, 7) == "::ffff:")
-        ip = ip.substr(7);
+    }
+    else {
+        if (ip == "::1")
+            ip = "127.0.0.1";
+        if (ip.substr(0, 7) == "::ffff:")
+            ip = ip.substr(7);
+    }
     return ip;
 }
 exports.getIpClient = getIpClient;
