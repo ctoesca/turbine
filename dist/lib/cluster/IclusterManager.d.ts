@@ -12,4 +12,5 @@ export interface IclusterManager extends TeventDispatcher {
     onLocalClusterMessage(message: any): any;
     getNewClient(db?: any): any;
     getClient(): any;
+    getRedisErrorsCount(): any;
 }

@@ -3,15 +3,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const TbaseService_1 = require("../TbaseService");
 const express = require("express");
 const bodyParser = require("body-parser");
-class TredisHttp extends TbaseService_1.TbaseService {
+class Tservice extends TbaseService_1.TbaseService {
     constructor(name, application, config) {
         super(name, application, config);
-        this.clients = {};
-        this.httpServer = application.getHttpServer().server;
-    }
-    start() {
-        super.start();
         this.app = express();
+        this.clients = {};
+        this.httpServer = application.getHttpServer();
         this.app.use(bodyParser.json({
             limit: '50mb'
         }));
@@ -26,6 +23,9 @@ class TredisHttp extends TbaseService_1.TbaseService {
         this.app.post('/hsearch', this.hsearch.bind(this));
         this.app.get('/check', this.check.bind(this));
         this.httpServer.use(this.config.apiPath, this.app);
+    }
+    start() {
+        super.start();
     }
     getDefaultConfig() {
         return {
@@ -154,5 +154,5 @@ class TredisHttp extends TbaseService_1.TbaseService {
         return this.clients[db];
     }
 }
-exports.TredisHttp = TredisHttp;
-//# sourceMappingURL=TredisHttp.js.map
+exports.Tservice = Tservice;
+//# sourceMappingURL=Tservice.js.map

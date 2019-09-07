@@ -2,7 +2,7 @@ import { TbaseService } from '../TbaseService';
 import { Tapplication } from '../../Tapplication';
 import { Tservice as ThttpServer } from '../HttpServer/Tservice';
 import express = require('express');
-export declare class TredisHttp extends TbaseService {
+export declare class Tservice extends TbaseService {
     clients: any;
     httpServer: ThttpServer;
     app: express.Application;

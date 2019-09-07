@@ -1,4 +1,5 @@
 import { TeventDispatcher } from '../events/TeventDispatcher';
+import { Tapplication } from '../Tapplication';
 import * as Logger from "bunyan";
 export declare abstract class TbaseService extends TeventDispatcher {
     name: string;
@@ -7,7 +8,8 @@ export declare abstract class TbaseService extends TeventDispatcher {
     active: boolean;
     executionPolicy: string;
     logger: Logger;
-    constructor(name: any, config: any);
+    application: Tapplication;
+    constructor(name: string, application: Tapplication, config: any);
     abstract getDefaultConfig(): any;
     install(): void;
     uninstall(): void;

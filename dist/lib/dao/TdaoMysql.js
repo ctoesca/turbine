@@ -18,6 +18,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         this.viewtablefieldsByName = null;
         this.connections = 0;
         this.poolname = null;
+        this.jsonFields = null;
         this.table = config.tableName;
         this.viewTable = this.table;
         if (this.config.viewName)
@@ -176,9 +177,12 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             }.bind(this));
         }.bind(this));
     }
-    execSelectQuery(sql) {
+    execSelectQuery(sql, opt = {}) {
         return this.query(sql).then(function (result) {
-            return this._processObjects(result);
+            if ((typeof opt.processObjects === "undefined") || (opt.processObjects === true))
+                return this._processObjects(result);
+            else
+                return result;
         }.bind(this));
     }
     select(opt = {}) {
@@ -195,10 +199,13 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             sql += " ORDER BY " + opt.orderBy;
         if (opt.limit)
             sql += " LIMIT " + opt.limit;
-        return this.execSelectQuery(sql)
-            .then(function (result) {
-            return this._processObjects(result);
-        }.bind(this));
+        return this.query(sql)
+            .then((result) => {
+            if ((typeof opt.processObjects === "undefined") || (opt.processObjects === true))
+                return this._processObjects(result);
+            else
+                return result;
+        });
     }
     selectOne(opt) {
         return this.select(opt).then(function (result) {
@@ -496,9 +503,9 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             .then(function (bddObjects) {
             var result = bddObjects;
             if (!isArray) {
+                result = bddObjects[0];
                 result._isNew = false;
                 result._changed = true;
-                result = bddObjects[0];
             }
             return result;
         }.bind(this));
@@ -700,38 +707,45 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             return r;
         }.bind(this));
     }
-    _processObjects(objects, fields) {
-        return new Promise(function (resolve, reject) {
+    _processObjects(objects) {
+        return new Promise((resolve, reject) => {
             if (objects != null) {
+                let fields;
                 this.getFields("view")
                     .then(function (result) {
-                    for (var i = 0; i < objects.length; i++) {
-                        var obj = objects[i];
-                        for (var k in obj) {
-                            if (this.viewfieldsByName[k]) {
-                                if (obj[k] != null) {
-                                    var type = this.viewfieldsByName[k].Type;
-                                    if ((type == "bit(1)") && (typeof obj[k] == "object")) {
-                                        obj[k] = (obj[k][0] === 1);
-                                    }
-                                    else if (typeof obj[k] == "string") {
-                                        if (this.jsonFields && this.jsonFields[k])
-                                            obj[k] = JSON.parse(obj[k]);
+                    fields = result;
+                    try {
+                        for (var i = 0; i < objects.length; i++) {
+                            var obj = objects[i];
+                            for (var k in obj) {
+                                if (this.viewfieldsByName[k]) {
+                                    if (obj[k] != null) {
+                                        var type = this.viewfieldsByName[k].Type;
+                                        if ((type == "bit(1)") && (typeof obj[k] == "object")) {
+                                            obj[k] = (obj[k][0] === 1);
+                                        }
+                                        else if (typeof obj[k] == "string") {
+                                            if ((type == "json") || (this.jsonFields && this.jsonFields[k]))
+                                                obj[k] = JSON.parse(obj[k]);
+                                        }
                                     }
                                 }
                             }
                         }
+                        resolve(this.processObjects(objects, fields));
                     }
-                    resolve(this.processObjects(objects, fields));
+                    catch (err) {
+                        reject(err);
+                    }
                 }.bind(this));
             }
             else {
                 resolve(objects);
             }
-        }.bind(this));
+        });
     }
     processObjects(objects, fields) {
-        return objects;
+        return Promise.resolve(objects);
     }
     onConnectionOpen(err) {
         this.logger.debug("SQL CONNECTION OPENED.");
@@ -743,6 +757,6 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         this.logger.error("SQL CONNECTION ERROR: " + err);
     }
 }
-TdaoMysql.pool = {};
 exports.TdaoMysql = TdaoMysql;
+TdaoMysql.pool = {};
 //# sourceMappingURL=TdaoMysql.js.map

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const TbaseService_js_1 = require("../TbaseService.js");
+const TbaseService_1 = require("../TbaseService");
 const exceptions = require("../../exceptions");
 const tools = require("../../tools");
 const express = require("express");
@@ -13,7 +13,7 @@ const pem = require("pem");
 const https = require("https");
 const expressSession = require("express-session");
 const connectRedis = require("connect-redis");
-class ThttpServer extends TbaseService_js_1.TbaseService {
+class Tservice extends TbaseService_1.TbaseService {
     constructor(name, application, config) {
         super(name, application, config);
         this.server = null;
@@ -226,5 +226,5 @@ class ThttpServer extends TbaseService_js_1.TbaseService {
     initRoutes() {
     }
 }
-exports.ThttpServer = ThttpServer;
-//# sourceMappingURL=ThttpServer.js.map
+exports.Tservice = Tservice;
+//# sourceMappingURL=Tservice.js.map

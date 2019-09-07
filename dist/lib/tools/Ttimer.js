@@ -45,6 +45,6 @@ class Ttimer extends TeventDispatcher_1.TeventDispatcher {
         }
     }
 }
-Ttimer.ON_TIMER = "ON_TIMER";
 exports.Ttimer = Ttimer;
+Ttimer.ON_TIMER = "ON_TIMER";
 //# sourceMappingURL=Ttimer.js.map

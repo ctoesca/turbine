@@ -1,5 +1,5 @@
 declare global {
-    interface String {
+    export interface String {
         rightOf(s: string): string;
         leftOf(s: string): string;
         rightRightOf(s: string): string;

@@ -18,6 +18,7 @@ export declare class TclusterManager extends TeventDispatcher implements Icluste
     nodeID: any;
     oneProcessPerServerTimer: tools.Ttimer;
     constructor(app: any, config: any);
+    getRedisErrorsCount(): number;
     readonly isMasterProcess: boolean;
     readonly isClusterMaster: boolean;
     readonly isServerMaster: boolean;

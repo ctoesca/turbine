@@ -7,8 +7,8 @@ const TbaseService_1 = require("../TbaseService");
 const Promise = require("bluebird");
 const child_process = require("child_process");
 class TredisMonitoring extends TbaseService_1.TbaseService {
-    constructor(name, config) {
-        super(name, config);
+    constructor(name, application, config) {
+        super(name, application, config);
         this.windowsServiceManager = new TwindowsServiceManager_1.TwindowsServiceManager();
         this.timer = new Ttimer_1.Ttimer({ delay: this.config.checkInterval * 1000 });
         this.timer.on(Ttimer_1.Ttimer.ON_TIMER, this.check.bind(this), this);

@@ -7,6 +7,8 @@ const cluster = require("cluster");
 const uuid = require("uuid");
 const os = require("os");
 const Redis = require("ioredis");
+const Promise = require("bluebird");
+Redis.Promise = Promise;
 class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
     constructor(app, config) {
         super();
@@ -27,6 +29,9 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
         };
         Redis.Promise.onPossiblyUnhandledRejection(this.onPossiblyUnhandledRejection.bind(this));
     }
+    getRedisErrorsCount() {
+        return this.redisErrors;
+    }
     get isMasterProcess() {
         return cluster.isMaster;
     }
@@ -40,7 +45,7 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
         this.redisErrors++;
         if (this.logger) {
             this.logger.error("onPossiblyUnhandledRejection : ", error);
-            if (error.stack)
+            if (error && error.stack)
                 this.logger.error(error.stack);
         }
     }
@@ -71,6 +76,7 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
                 this.logger.debug("ON CLUSTER MESSAGE from " + worker.process.pid);
                 sendToAllWorkers(message);
             });
+            this.logger.info("Création de " + this.config.numProcesses + " workers");
             for (var i = 0; i < this.config.numProcesses; i++) {
                 var isFirstWorker = 0;
                 if (i == 0)

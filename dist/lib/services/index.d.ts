@@ -1,4 +1,5 @@
 export { TbaseService } from './TbaseService';
-export { ThttpServer } from './HttpServer/ThttpServer';
+export { ThttpBaseService } from './ThttpBaseService';
+export { Tservice as ThttpServer } from './httpServer/Tservice';
 export { TredisMonitoring } from './redis-monitoring/TredisMonitoring';
-export { TredisHttp } from './redis-http/TredisHttp';
+export { Tservice as TredisHttp } from './redisHttp/Tservice';

@@ -4,7 +4,12 @@ export declare class TlogManager {
     config: any;
     _loggers: {};
     logsConfig: any;
+    rotator: any;
+    rotatorFile: string;
+    rotatorParams: any;
     constructor(config: any);
+    onServerMasterChanged(data: any): void;
+    enableLogRotator(data: any): void;
     getDefaultLogConfig(): {
         "logger": {
             "level": string;

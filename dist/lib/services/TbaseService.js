@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const TeventDispatcher_1 = require("../events/TeventDispatcher");
 const shell = require("shelljs");
 class TbaseService extends TeventDispatcher_1.TeventDispatcher {
-    constructor(name, config) {
+    constructor(name, application, config) {
         super();
         this.name = null;
         this.config = null;
@@ -11,6 +11,7 @@ class TbaseService extends TeventDispatcher_1.TeventDispatcher {
         this.active = false;
         this.executionPolicy = null;
         this.name = name;
+        this.application = application;
         this.config = this.getDefaultConfig();
         if (config) {
             for (var k in config)
@@ -26,7 +27,7 @@ class TbaseService extends TeventDispatcher_1.TeventDispatcher {
             if (e.code != 'EEXIST')
                 throw e;
         }
-        this.logger = app.getLogger(this.name);
+        this.logger = application.getLogger(this.name);
         this.logger.info("Creation service '" + this.name + "'. executionPolicy=" + this.executionPolicy);
     }
     install() {

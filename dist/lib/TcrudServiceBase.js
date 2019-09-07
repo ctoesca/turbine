@@ -14,7 +14,9 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
         if (typeof this.config.model.channelName != "undefined")
             this.channelName = this.config.model.channelName;
         this.model = config.model;
-        app.logger.debug("Creation TcrudServiceBase model.name='" + this.model.name + "'", this.config);
+        this.pubSubServer = app.getService('pubSubServer');
+        this.logger = app.logger;
+        this.logger.debug("Creation TcrudServiceBase model.name='" + this.model.name + "'", this.config);
     }
     getDao() {
         if (this.dao == null)
@@ -29,7 +31,7 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
         });
     }
     save(obj, opt = null) {
-        app.logger.debug("SAVE ", obj);
+        this.logger.debug("SAVE ", obj);
         return this.getDao()
             .then((dao) => {
             return dao.save(obj)
@@ -41,7 +43,7 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
                             objectClass: this.model.name,
                             data: result[i]
                         };
-                        app.pubSubServer.broadcast({ type: 'publish', channel: this.channelName, payload: payload });
+                        this.pubSubServer.publish({ type: 'publish', channel: this.channelName, payload: payload });
                     }
                 }
                 else {
@@ -51,7 +53,7 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
                         data: result
                     };
                     if (this.channelName)
-                        app.pubSubServer.broadcast({ type: 'publish', channel: this.channelName, payload: payload });
+                        this.pubSubServer.publish({ type: 'publish', channel: this.channelName, payload: payload });
                 }
                 return result;
             });
@@ -72,7 +74,7 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
                 }
             };
             if (this.channelName)
-                app.pubSubServer.broadcast({ type: 'publish', channel: this.channelName, payload: payload });
+                this.pubSubServer.publish({ type: 'publish', channel: this.channelName, payload: payload });
             return result;
         });
     }

@@ -1,8 +1,8 @@
-import { TbaseService } from '../TbaseService.js';
-import { Tapplication } from '../../Tapplication.js';
+import { TbaseService } from '../TbaseService';
+import { Tapplication } from '../../Tapplication';
 import express = require('express');
 import Promise = require("bluebird");
-export declare class ThttpServer extends TbaseService {
+export declare class Tservice extends TbaseService {
     app: express.Application;
     server: any;
     constructor(name: string, application: Tapplication, config: any);

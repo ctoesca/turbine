@@ -1,6 +1,6 @@
 import { IclusterManager } from './cluster/IclusterManager';
 import { TbaseService } from './services/TbaseService';
-import { ThttpServer } from "./services/HttpServer/ThttpServer";
+import { Tservice as ThttpServer } from "./services/HttpServer/Tservice";
 import express = require('express');
 import { TeventDispatcher } from './events/TeventDispatcher';
 import { Tevent } from './events/Tevent';
@@ -11,15 +11,19 @@ import Express = require("Express");
 export declare class Tapplication extends TeventDispatcher {
     appVersion: any;
     config: any;
-    services: TbaseService[];
+    services: Map<string, TbaseService>;
     models: {};
     logManager: TlogManager;
     logger: any;
     ClusterManager: IclusterManager;
     httpServer: ThttpServer;
     sessionName: string;
+    servicesClasses: Map<string, TbaseService>;
     private _daoList;
     constructor(config: any);
+    protected onStop(signal: any): void;
+    getTmpDir(): any;
+    getDataDir(): string;
     init(): Promise<any>;
     getCookies(req: express.Request): {};
     getUserSession(req: express.Request): Promise<{}>;
@@ -29,6 +33,9 @@ export declare class Tapplication extends TeventDispatcher {
     onIsMasterChanged(e: Tevent): void;
     getLogger(name: string): Logger;
     start(): Promise<any>;
+    getHttpServer(): ThttpServer;
+    createServices(path: string): Promise<TbaseService[]>;
+    canCreateService(name: string): boolean;
     registerModel(name: string, model: any, app?: Express.Application): any;
     registerModelFromFile(path: string): Promise<any>;
     getDao(objectClassName: any, datasourceName?: any): Promise<any>;
