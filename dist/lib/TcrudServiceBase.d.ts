@@ -14,6 +14,14 @@ export declare class TcrudServiceBase extends TeventDispatcher {
     getDao(): Promise<TdaoMysql>;
     getById(id: any, opt: any): Promise<any>;
     save(obj: any, opt?: any): Promise<any>;
-    deleteById(id: any, opt: any): Promise<unknown>;
-    search(opt: any): Promise<unknown>;
+    deleteById(id: any, opt: any): Promise<any>;
+    search(opt: any): Promise<{
+        data: any[];
+        resultCount: any;
+        total: any;
+        offset: any;
+        limit: any;
+        groupBy: any;
+        orderBy: any;
+    }>;
 }

@@ -2,7 +2,7 @@
 import * as Logger from "bunyan";
 export declare class TlogManager {
     config: any;
-    _loggers: {};
+    _loggers: Map<string, Logger>;
     logsConfig: any;
     rotator: any;
     rotatorFile: string;

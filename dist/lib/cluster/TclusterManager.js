@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const TeventDispatcher_1 = require("../events/TeventDispatcher");
 const Tevent_1 = require("../events/Tevent");
 const tools = require("../tools");
-const cluster = require("cluster");
 const uuid = require("uuid");
 const os = require("os");
 const Redis = require("ioredis");
@@ -32,9 +31,6 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
     getRedisErrorsCount() {
         return this.redisErrors;
     }
-    get isMasterProcess() {
-        return cluster.isMaster;
-    }
     get isClusterMaster() {
         return this.workerInfos.isClusterMaster;
     }
@@ -57,66 +53,32 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
     }
     start() {
         this.logger = this.app.getLogger(this.constructor.name);
-        this.localMasterPid = null;
-        if (cluster.isMaster) {
-            this.client = this.getNewClient();
-            this.client.del("workers");
-            this.logger.info("HOSTNAME = " + this.getHostName());
-            this.logger.info("NOMBRE DE COEURS: " + os.cpus().length);
-            var sendToAllWorkers = function (message) {
-                for (var i in cluster.workers) {
-                    try {
-                        cluster.workers[i].send(message);
-                    }
-                    catch (err) {
-                    }
-                }
-            };
-            cluster.on('message', (worker, message, handle) => {
-                this.logger.debug("ON CLUSTER MESSAGE from " + worker.process.pid);
-                sendToAllWorkers(message);
-            });
-            this.logger.info("Création de " + this.config.numProcesses + " workers");
-            for (var i = 0; i < this.config.numProcesses; i++) {
-                var isFirstWorker = 0;
-                if (i == 0)
-                    isFirstWorker = 1;
-                cluster.fork({
-                    isFirstWorker: isFirstWorker,
-                    isWorker: true
-                });
-            }
-            cluster.on('disconnect', (worker) => {
-                this.logger.warn(`worker ${worker.id} disconnected`);
-                cluster.fork({
-                    isFirstWorker: false,
-                    isWorker: true
-                });
-                if (this.localMasterPid == worker.process.pid) {
-                    this.logger.info("*** LOCAL MASTER KILLED ****");
-                    this.localMasterPid = null;
-                    var message = { message: "!!!!!!!!!!!!!!!! LOCAL MASTER KILLED !!!!!!!!!!!!!!!" };
-                    sendToAllWorkers(JSON.stringify(message));
-                }
-            });
-            cluster.on('exit', (worker, code, signal) => {
-                this.logger.warn(`worker ${worker.process.pid} died code=` + code);
-            });
-            cluster.on('fork', (worker) => {
-                this.logger.info("************ FORK WORKER **************");
-                if (this.localMasterPid == null) {
-                    this.localMasterPid = worker.process.pid;
-                    this.logger.info("*** LOCAL MASTER PID = " + this.localMasterPid + " ****");
-                }
-            });
-        }
-        else {
-            process.on('message', this.onLocalClusterMessage.bind(this));
-            setTimeout(function () {
-                this.dispatchEvent(new Tevent_1.Tevent("WORKER_CREATED", process));
-            }.bind(this), 10);
-            this.initOnWorker();
-        }
+        this.nodeID = uuid.v4();
+        this.logger.debug(this.constructor.name + " created: opt=", this.config);
+        this.logger.debug("NODEID=" + this.nodeID);
+        this.client = this.getNewClient();
+        this.client.on("error", function (err) {
+            this.logger.error("REDIS Error " + err.toString());
+            this.redisErrors++;
+        }.bind(this));
+        this.client.on("ready", function (data) {
+            this.logger.debug("REDIS ready");
+        }.bind(this));
+        this.client.on("connect", function (data) {
+            this.logger.debug("REDIS connected");
+        }.bind(this));
+        this.client.on("reconnecting", function (data) {
+            this.logger.debug("REDIS reconnecting. data=", data);
+        }.bind(this));
+        this.client.on("close", function (data) {
+            this.logger.debug("REDIS close");
+        }.bind(this));
+        this.client.on("end", function (data) {
+            this.logger.debug("REDIS end");
+        }.bind(this));
+        this.oneProcessPerServerTimer = new tools.Ttimer({ delay: this.timerInterval });
+        this.oneProcessPerServerTimer.on(tools.Ttimer.ON_TIMER, this.onTimer, this);
+        this.oneProcessPerServerTimer.start();
     }
     onTimer() {
         this.client.hgetall("workers", function (err, result) {
@@ -183,9 +145,6 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
     getThisWorkerId() {
         return this.getHostName() + "_" + process.pid;
     }
-    getClusterWorkers() {
-        return cluster.workers;
-    }
     saveWorker(w, callback, error) {
         w.lastActivity = new Date().getTime();
         var data = JSON.stringify(w);
@@ -200,34 +159,6 @@ class TclusterManager extends TeventDispatcher_1.TeventDispatcher {
                     error();
             }
         }.bind(this));
-    }
-    initOnWorker() {
-        this.nodeID = uuid.v4();
-        this.logger.debug(this.constructor.name + " created: opt=", this.config);
-        this.logger.debug("NODEID=" + this.nodeID);
-        this.client = this.getNewClient();
-        this.client.on("error", function (err) {
-            this.logger.error("REDIS Error " + err.toString());
-            this.redisErrors++;
-        }.bind(this));
-        this.client.on("ready", function (data) {
-            this.logger.debug("REDIS ready");
-        }.bind(this));
-        this.client.on("connect", function (data) {
-            this.logger.debug("REDIS connected");
-        }.bind(this));
-        this.client.on("reconnecting", function (data) {
-            this.logger.debug("REDIS reconnecting. data=", data);
-        }.bind(this));
-        this.client.on("close", function (data) {
-            this.logger.debug("REDIS close");
-        }.bind(this));
-        this.client.on("end", function (data) {
-            this.logger.debug("REDIS end");
-        }.bind(this));
-        this.oneProcessPerServerTimer = new tools.Ttimer({ delay: this.timerInterval });
-        this.oneProcessPerServerTimer.on(tools.Ttimer.ON_TIMER, this.onTimer, this);
-        this.oneProcessPerServerTimer.start();
     }
     onLocalClusterMessage(message) {
         var message = JSON.parse(message);

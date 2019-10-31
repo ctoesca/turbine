@@ -76,6 +76,7 @@ class Tservice extends TbaseService_1.TbaseService {
             }.bind(this));
             this.initRoutes();
             this.listen();
+            return null;
         }.bind(this))
             .catch(function (err) {
             process.exit(1);
@@ -118,6 +119,18 @@ class Tservice extends TbaseService_1.TbaseService {
         tools.checkPort(this.config.bindAddress, this.config.port).then(function (result) {
             this.server.listen(this.config.port, () => {
                 this.logger.info("API Server started listening on " + this.config.bindAddress + ":" + this.config.port);
+            });
+            this.server.on('error', (e) => {
+                if (e.code === 'EADDRINUSE') {
+                    this.logger.error('Address in use: ' + this.bindAddress, this.port + ', retrying...');
+                    setTimeout(() => {
+                        this.server.close();
+                        this.server.listen(this.port, this.bindAddress);
+                    }, 2000);
+                }
+                else {
+                    this.logger.error(e.toString());
+                }
             });
         }.bind(this));
     }

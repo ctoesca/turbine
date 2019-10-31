@@ -82,22 +82,16 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
             redis: this.config.redis
         });
         this.ClusterManager.start();
-        if (!this.ClusterManager.isMasterProcess) {
-            this.logger.info("Node worker started (PID=" + process.pid + ")");
-            this.ClusterManager.on("ISMASTER_CHANGED", this.onIsMasterChanged.bind(this));
-            this.ClusterManager.on("MASTER_SERVER_PROCESS_CHANGED", this.onServerMasterChanged.bind(this));
-            let httpServerClass = require('./services/httpServer/Tservice').Tservice;
-            this.httpServer = new httpServerClass("httpServer", this, this.config.services.httpServer);
-            this.registerService(this.httpServer);
-            return this.registerModelFromFile(this.config.defaultModelsPath + "/models")
-                .then(() => {
-                return this.createServices(__dirname + '/services');
-            });
-        }
-        else {
-            this.logger.info("Node master started (PID=" + process.pid + ")");
-            return Promise.resolve();
-        }
+        this.logger.info("Node worker started (PID=" + process.pid + ")");
+        this.ClusterManager.on("ISMASTER_CHANGED", this.onIsMasterChanged.bind(this));
+        this.ClusterManager.on("MASTER_SERVER_PROCESS_CHANGED", this.onServerMasterChanged.bind(this));
+        let httpServerClass = require('./services/httpServer/Tservice').Tservice;
+        this.httpServer = new httpServerClass("httpServer", this, this.config.services.httpServer);
+        this.registerService(this.httpServer);
+        return this.registerModelFromFile(this.config.defaultModelsPath + "/models")
+            .then(() => {
+            return this.createServices(__dirname + '/services');
+        });
     }
     getCookies(req) {
         var cookies = {};
@@ -143,10 +137,10 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
     onServerMasterChanged(e) {
         this.logManager.onServerMasterChanged(e.data);
         if (e.data) {
-            this.logger.info("This worker becomes SERVER_MASTER");
+            this.logger.info("This worker becomes SERVER MASTER");
         }
         else {
-            this.logger.info("This worker is no longer SERVER_MASTER");
+            this.logger.info("This worker is no longer SERVER MASTER");
         }
         this.services.forEach((svc, k) => {
             if (svc.active && (svc.executionPolicy == "one_per_server")) {
@@ -159,9 +153,9 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
     }
     onIsMasterChanged(e) {
         if (e.data)
-            this.logger.info("This worker becomes MASTER");
+            this.logger.info("This worker becomes CLUSTER MASTER");
         else
-            this.logger.info("This worker is no longer MASTER");
+            this.logger.info("This worker is no longer CLUSTER MASTER");
         this.services.forEach((svc, k) => {
             if (svc.executionPolicy == "one_in_cluster") {
                 if (e.data)
@@ -175,12 +169,10 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
         return this.logManager.getLogger(name);
     }
     start() {
-        if (!this.ClusterManager.isMasterProcess) {
-            this.services.forEach((svc, k) => {
-                if (svc.active && (svc.executionPolicy == "one_per_process") && (!this.ClusterManager.isMasterProcess))
-                    svc.start();
-            });
-        }
+        this.services.forEach((svc, k) => {
+            if (svc.active && (svc.executionPolicy == "one_per_process"))
+                svc.start();
+        });
         return Promise.resolve();
     }
     getHttpServer() {
@@ -245,9 +237,12 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
             });
         });
     }
-    getDao(objectClassName, datasourceName = null) {
-        var id = objectClassName + "." + datasourceName;
-        if (!this._daoList[id]) {
+    getDao(objectClassName, datasourceName = null, opt = {}) {
+        var id = null;
+        if ((datasourceName === null) || (typeof datasourceName === 'string'))
+            id = objectClassName + "." + datasourceName;
+        var useCache = (opt.useCache !== false) && (id !== null);
+        if (!useCache || (!this._daoList[id])) {
             let modelConfig;
             if (!this.models)
                 throw new Error("l'objet 'models' n'existe pas dans la configuration");
@@ -263,23 +258,36 @@ class Tapplication extends TeventDispatcher_1.TeventDispatcher {
             else
                 throw new Error("Le DAO du model '" + objectClassName + "' n'a pas de configuration définie");
             daoConfig.model = modelConfig;
-            if (datasourceName == null) {
-                if (daoConfig.datasource)
-                    datasourceName = daoConfig.datasource;
-                else
-                    throw new Error("Le dao du model '" + objectClassName + "' n'a pas de datasource par défaut");
+            let datasource;
+            if ((datasourceName == null) || (typeof datasourceName === 'string')) {
+                if (datasourceName == null) {
+                    if (daoConfig.datasource)
+                        datasourceName = daoConfig.datasource;
+                    else
+                        throw new Error("Le dao du model '" + objectClassName + "' n'a pas de datasource par défaut");
+                }
+                if (typeof this.config.datasources[datasourceName] == "undefined")
+                    throw new Error("Le datasource " + datasourceName + " n'est pas référencée dans la configuration");
+                datasource = this.config.datasources[datasourceName];
             }
-            if (typeof this.config.datasources[datasourceName] == "undefined")
-                throw new Error("Le datasource " + datasourceName + " n'est pas référencée dans la configuration");
-            let datasource = this.config.datasources[datasourceName];
+            else if (typeof datasourceName === 'object') {
+                datasource = datasourceName;
+            }
             var clazz = TdaoMysql_1.TdaoMysql;
             if (modelConfig.dao.class) {
                 clazz = modelConfig.dao.class;
             }
-            this._daoList[id] = new clazz(objectClassName, datasource, daoConfig);
-            return this._daoList[id].init()
+            let dao = new clazz(objectClassName, datasource, daoConfig);
+            if (useCache) {
+                if (id)
+                    this._daoList[id] = dao;
+            }
+            else {
+                dao.resetPool();
+            }
+            return dao.init()
                 .then(() => {
-                return this._daoList[id];
+                return dao;
             });
         }
         else {

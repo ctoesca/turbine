@@ -34,29 +34,29 @@ class TcrudServiceBase extends TeventDispatcher_1.TeventDispatcher {
         this.logger.debug("SAVE ", obj);
         return this.getDao()
             .then((dao) => {
-            return dao.save(obj)
-                .then((result) => {
-                if (typeof result.push == "function") {
-                    for (var i = 0; i < obj.length; i++) {
-                        var payload = {
-                            action: "post",
-                            objectClass: this.model.name,
-                            data: result[i]
-                        };
-                        this.pubSubServer.publish({ type: 'publish', channel: this.channelName, payload: payload });
-                    }
-                }
-                else {
+            return dao.save(obj);
+        })
+            .then((result) => {
+            if (typeof result.push == "function") {
+                for (var i = 0; i < obj.length; i++) {
                     var payload = {
                         action: "post",
                         objectClass: this.model.name,
-                        data: result
+                        data: result[i]
                     };
-                    if (this.channelName)
-                        this.pubSubServer.publish({ type: 'publish', channel: this.channelName, payload: payload });
+                    this.pubSubServer.publish({ type: 'publish', channel: this.channelName, payload: payload });
                 }
-                return result;
-            });
+            }
+            else {
+                var payload = {
+                    action: "post",
+                    objectClass: this.model.name,
+                    data: result
+                };
+                if (this.channelName)
+                    this.pubSubServer.publish({ type: 'publish', channel: this.channelName, payload: payload });
+            }
+            return result;
         });
     }
     deleteById(id, opt) {

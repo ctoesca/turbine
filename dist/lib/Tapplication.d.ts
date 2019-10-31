@@ -38,5 +38,5 @@ export declare class Tapplication extends TeventDispatcher {
     canCreateService(name: string): boolean;
     registerModel(name: string, model: any, app?: Express.Application): any;
     registerModelFromFile(path: string): Promise<any>;
-    getDao(objectClassName: any, datasourceName?: any): Promise<any>;
+    getDao(objectClassName: string, datasourceName?: any, opt?: any): Promise<any>;
 }

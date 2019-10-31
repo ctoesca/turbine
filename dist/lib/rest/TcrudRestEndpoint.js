@@ -73,6 +73,11 @@ class TcrudRestEndpoint extends TrestEndpoint_1.TrestEndpoint {
             fields: req.query.fields,
             searchFields: req.query.searchFields
         };
+        for (let k in req.query) {
+            if (typeof opt[k] === "undefined") {
+                opt[k] = req.query[k];
+            }
+        }
         this.callService(req, res, next, "search", opt);
     }
     getById(req, res, next) {

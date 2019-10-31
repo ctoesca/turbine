@@ -8,7 +8,7 @@ const logrotate = require('logrotator');
 class TlogManager {
     constructor(config) {
         this.config = null;
-        this._loggers = {};
+        this._loggers = new Map();
         this.logsConfig = null;
         this.config = config;
         this.rotator = logrotate.rotator;
@@ -93,17 +93,23 @@ class TlogManager {
     getLogger(name = null, loggerConf = null) {
         if (name == null)
             name = "Main";
-        if (typeof this._loggers[name] == "undefined") {
+        let r = null;
+        if (!this._loggers.has(name)) {
             if (loggerConf) {
-                this._loggers[name] = Logger.createLogger(loggerConf);
+                r = Logger.createLogger(loggerConf);
+                this._loggers.set(name, r);
             }
             else {
                 var loggerConf = this.getLogsConfig().logger;
                 loggerConf.name = name;
-                this._loggers[name] = Logger.createLogger(loggerConf);
+                r = Logger.createLogger(loggerConf);
+                this._loggers.set(name, r);
             }
         }
-        return this._loggers[name];
+        else {
+            r = this._loggers.get(name);
+        }
+        return r;
     }
 }
 exports.TlogManager = TlogManager;

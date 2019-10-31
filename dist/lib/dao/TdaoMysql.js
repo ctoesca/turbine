@@ -14,11 +14,16 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         this.IDFieldIsAuto = true;
         this.IDFieldType = "integer";
         this.cache = null;
+        this.viewfieldsByName = null;
         this.tablefieldsByName = null;
-        this.viewtablefieldsByName = null;
         this.connections = 0;
         this.poolname = null;
         this.jsonFields = null;
+        if (this.config.jsonFields) {
+            this.jsonFields = {};
+            for (let fieldname of this.config.jsonFields)
+                this.jsonFields[fieldname] = true;
+        }
         this.table = config.tableName;
         this.viewTable = this.table;
         if (this.config.viewName)
@@ -36,9 +41,9 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
     }
     init() {
         return this.getFields("table")
-            .then(function () {
+            .then(() => {
             return this.getFields("view");
-        }.bind(this));
+        });
     }
     pad(number) {
         if (number < 10) {
@@ -54,6 +59,26 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             ':' + this.pad(d.getMinutes()) +
             ':' + this.pad(d.getSeconds());
     }
+    resetPool() {
+        return new Promise((resolve, reject) => {
+            if (typeof TdaoMysql.pool[this.poolname] !== "undefined") {
+                TdaoMysql.pool[this.poolname].end((err) => {
+                    if (err) {
+                        this.logger.error('resetPool ' + this.poolname + ' ' + err.toString());
+                        reject('resetPool: ' + this.poolname + ' ' + err.toString());
+                    }
+                    else {
+                        this.logger.info('resetPool ' + this.poolname + ' OK');
+                        resolve();
+                    }
+                });
+                delete TdaoMysql.pool[this.poolname];
+            }
+            else {
+                return resolve();
+            }
+        });
+    }
     getPool() {
         if (typeof TdaoMysql.pool[this.poolname] == "undefined") {
             this.logger.debug("Create pool " + this.poolname);
@@ -65,8 +90,8 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         return TdaoMysql.pool[this.poolname];
     }
     getConnection() {
-        return new Promise(function (resolve, reject) {
-            this.getPool().getConnection(function (err, connection) {
+        return new Promise((resolve, reject) => {
+            this.getPool().getConnection((err, connection) => {
                 if (err) {
                     reject(err);
                 }
@@ -74,16 +99,16 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
                     this.connections++;
                     resolve(connection);
                 }
-            }.bind(this));
-        }.bind(this));
+            });
+        });
     }
     releaseConnection(connection) {
         connection.release();
         this.connections--;
     }
     beginTransaction(connection) {
-        return new Promise(function (resolve, reject) {
-            connection.beginTransaction(function (err) {
+        return new Promise((resolve, reject) => {
+            connection.beginTransaction((err) => {
                 if (err)
                     reject(err);
                 else
@@ -92,8 +117,8 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         });
     }
     commitTransaction(connection) {
-        return new Promise(function (resolve, reject) {
-            connection.commit(function (err) {
+        return new Promise((resolve, reject) => {
+            connection.commit((err) => {
                 if (err) {
                     connection.rollback();
                     reject(err);
@@ -102,17 +127,17 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
                     resolve(connection);
                 }
                 this.releaseConnection(connection);
-            }.bind(this));
-        }.bind(this));
+            });
+        });
     }
     rollbackTransaction(connection) {
-        this.logger.error("ROLLBACK");
-        return new Promise(function (resolve, reject) {
+        this.logger.error("ROLLBACK sur dao " + this.objectClassName);
+        return new Promise((resolve, reject) => {
             if (connection == null) {
-                return Promise.resolve(connection);
+                resolve(connection);
             }
             else {
-                connection.rollback(function (err) {
+                connection.rollback((err) => {
                     if (err) {
                         reject(err);
                     }
@@ -120,52 +145,59 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
                         resolve(connection);
                     }
                     this.releaseConnection(connection);
-                }.bind(this));
+                });
             }
-        }.bind(this));
+        });
     }
     queryTransaction(sql) {
         var conn = null;
+        let rows;
         return this.getConnection()
-            .then(function (connection) {
+            .then((connection) => {
             conn = connection;
             return this.beginTransaction(connection);
-        }.bind(this))
-            .then(function (connection) {
-            return this._query(sql, connection);
-        }.bind(this))
-            .then(function (rows, fields) {
-            return this.commitTransaction(conn)
-                .then(function (r) {
-                return rows;
-            }.bind(this));
-        }.bind(this))
-            .catch(function (err) {
+        })
+            .then((connection) => {
+            return this._query({ sql: sql }, connection);
+        })
+            .then((result) => {
+            rows = result;
+            return this.commitTransaction(conn);
+        })
+            .then((r) => {
+            return rows;
+        })
+            .catch((err) => {
             if (conn)
                 this.rollbackTransaction(conn);
             return Promise.reject(err);
-        }.bind(this));
+        });
     }
     query(sql) {
         var conn = null;
         var startTime = new Date();
         return this.getConnection()
-            .then(function (connection) {
+            .then((connection) => {
             conn = connection;
-            return this._query(sql, connection);
-        }.bind(this))
-            .then(function (rows, fields) {
-            this.releaseConnection(conn);
+            return this._query({ sql: sql }, connection);
+        })
+            .then((rows) => {
             var xtime = new Date().getTime() - startTime.getTime();
             this.logger.trace("QUERY EXEC TIME=" + xtime + " ms");
             return rows;
-        }.bind(this));
+        })
+            .finally(() => {
+            if (conn)
+                this.releaseConnection(conn);
+        });
     }
-    _query(sql, connection) {
-        return new Promise(function (resolve, reject) {
-            connection.query(sql, function (err, rows, fields) {
+    _query(opt, connection) {
+        return new Promise((resolve, reject) => {
+            if (!opt.timeout)
+                opt.timeout = this.queryTimeout;
+            connection.query(opt, (err, rows, fields) => {
                 if (err) {
-                    this.logger.debug("SQL=" + sql);
+                    this.logger.debug("SQL=" + opt.sql);
                     reject(err);
                 }
                 else {
@@ -174,16 +206,17 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
                     else
                         resolve(rows);
                 }
-            }.bind(this));
-        }.bind(this));
+            });
+        });
     }
     execSelectQuery(sql, opt = {}) {
-        return this.query(sql).then(function (result) {
+        return this.query(sql)
+            .then((result) => {
             if ((typeof opt.processObjects === "undefined") || (opt.processObjects === true))
                 return this._processObjects(result);
             else
                 return result;
-        }.bind(this));
+        });
     }
     select(opt = {}) {
         if (this.viewTable == null)
@@ -208,7 +241,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         });
     }
     selectOne(opt) {
-        return this.select(opt).then(function (result) {
+        return this.select(opt).then((result) => {
             var r = null;
             if (result.length > 0)
                 r = result[0];
@@ -225,14 +258,15 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
                 var sql = "SHOW COLUMNS FROM " + this.table;
             else
                 var sql = "SHOW COLUMNS FROM " + this.viewTable;
-            return this.query(sql).then(function (fields) {
+            return this.query(sql)
+                .then((fields) => {
                 if (this[type + "fieldsByName"] == null) {
                     this[type + "fieldsByName"] = {};
                     for (var i = 0; i < fields.length; i++)
                         this[type + "fieldsByName"][fields[i].Field] = fields[i];
                 }
                 return this[type + "fieldsByName"];
-            }.bind(this));
+            });
         }
         else {
             return Promise.resolve(this[type + "fieldsByName"]);
@@ -255,7 +289,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             value = idList.join(",");
         var sql = "select * from " + this.viewTable + " where " + this.IDField + " IN (" + value + ")";
         return this.query(sql)
-            .then(function (result) {
+            .then((result) => {
             var hashResult = {};
             for (var i = 0; i < result.length; i++)
                 hashResult[result[i][this.IDField]] = result[i];
@@ -273,7 +307,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             if (opt.throwIfIncomplete && (notFound.length > 0))
                 throw new Error("Records(s) not found: " + notFound.join(","));
             return this._processObjects(result2);
-        }.bind(this));
+        });
     }
     getById(id, opt = null) {
         var value = id;
@@ -289,13 +323,13 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             fields = opt.fields;
         var sql = "select " + fields + " from " + this.viewTable + " where " + this.IDField + " = " + value + " LIMIT 1";
         return this.query(sql)
-            .then(function (result) {
+            .then((result) => {
             if (result.length > 0)
                 return this._processObjects(result);
             else
                 return null;
-        }.bind(this))
-            .then(function (result) {
+        })
+            .then((result) => {
             if (result != null)
                 return result[0];
             else
@@ -307,29 +341,29 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
         if (opt && opt.where)
             sql += " WHERE " + opt.where;
         return this.queryTransaction(sql)
-            .then(function (result) {
+            .then((result) => {
             var recordsCount = this.cache.get("recordsCount");
             if (recordsCount)
                 this.cache.set("recordsCount", result.affectedRows);
-            return result[0];
-        }.bind(this));
+            return result;
+        });
     }
     deleteById(id, opt) {
         return this.getById(id)
-            .then(function (bddObject) {
+            .then((bddObject) => {
             if (bddObject == null)
                 throw "Object " + id + " does not exists";
             else
                 return this.queryTransaction("DELETE from " + this.table + " WHERE " + this.IDField + " = '" + id + "'");
-        }.bind(this))
-            .then(function (result) {
+        })
+            .then((result) => {
             if (result.affectedRows == 0)
                 throw "Object " + id + " does not exists";
             var recordsCount = this.cache.get("recordsCount");
             if (recordsCount)
                 this.cache.set("recordsCount", recordsCount - 1);
             return id;
-        }.bind(this));
+        });
     }
     save(obj, opt = {}) {
         var isArray = (typeof obj.push == 'function');
@@ -458,30 +492,30 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             throw new Error("create multi: not suported");
         this.logger.info("create in table '" + this.table + "'");
         return this.getFields("table")
-            .then(function (fields) {
+            .then((fields) => {
             var sql = this.getInsertSql(obj);
             return this.queryTransaction(sql);
-        }.bind(this))
-            .then(function (result) {
+        })
+            .then((result) => {
             return this.getById(result[0].insertId);
-        }.bind(this))
-            .then(function (result) {
+        })
+            .then((result) => {
             if (result == null)
                 throw new Error("Object " + result[this.IDField] + " not created");
             result._isNew = true;
             result._changed = true;
             return result;
-        }.bind(this));
+        });
     }
     _update(obj, opt = {}) {
         this.logger.info("update in table '" + this.table + "' ID=" + this.getIds(obj));
         var isArray = (typeof obj.push == "function");
         var idList = this.getIds(obj);
         return this.getFields("table")
-            .then(function () {
+            .then(() => {
             return this.getByIds(idList, { throwIfIncomplete: true });
-        }.bind(this))
-            .then(function (bddObjects) {
+        })
+            .then((bddObjects) => {
             var isArray = false;
             var sql = "";
             if (typeof obj.push == "function") {
@@ -493,14 +527,14 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
                 sql = this.getUpdateSql(obj);
             }
             return sql;
-        }.bind(this))
-            .then(function (sql) {
+        })
+            .then((sql) => {
             return this.queryTransaction(sql);
-        }.bind(this))
-            .then(function (result) {
+        })
+            .then((result) => {
             return this.getByIds(idList, { throwIfIncomplete: true });
-        }.bind(this))
-            .then(function (bddObjects) {
+        })
+            .then((bddObjects) => {
             var result = bddObjects;
             if (!isArray) {
                 result = bddObjects[0];
@@ -508,7 +542,7 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
                 result._changed = true;
             }
             return result;
-        }.bind(this));
+        });
     }
     getIds(obj) {
         var r = [];
@@ -529,12 +563,13 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             whereIsSet = true;
             sql += " WHERE " + where;
         }
-        return this.query(sql).then(function (result) {
+        return this.query(sql)
+            .then((result) => {
             var r = result[0].count;
             if (!whereIsSet)
                 this.cache.set("recordsCount", r);
             return r;
-        }.bind(this));
+        });
     }
     getSearchQuery(opt) {
         var r = {
@@ -544,10 +579,10 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             limit: null,
             offset: null,
             orderBy: null,
-            sqlSelectFields: "",
-            sql: ""
+            sqlSelectFields: ""
         };
-        return this.getFields("view").then(function (fields) {
+        return this.getFields("view")
+            .then((fields) => {
             opt.search = opt.search.replace(/\s+/g, ' ').trim();
             var words = [];
             if (opt.search)
@@ -584,7 +619,6 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
                 for (var fieldName in fields)
                     searchFields.push(fields[fieldName]);
             }
-            r.sql = "SELECT " + r.sqlSelectFields + " from " + this.viewTable;
             var whereIsset = false;
             if (words.length > 0) {
                 for (var j = 0; j < words.length; j++) {
@@ -626,18 +660,8 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
                     r.limit = 1000000000;
                 r.offset = opt.offset;
             }
-            if (r.where)
-                r.sql += " WHERE " + r.where;
-            if (r.groupBy)
-                r.sql += " GROUP BY " + r.groupBy;
-            if (r.orderBy)
-                r.sql += " ORDER BY " + r.orderBy;
-            if (r.limit)
-                r.sql += " LIMIT " + r.limit;
-            if (r.offset)
-                r.sql += " OFFSET " + r.offset;
             return r;
-        }.bind(this));
+        });
     }
     search(opt) {
         var defaultOpt = {
@@ -650,7 +674,8 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             fields: "*",
             logicPipe: 'AND',
             groupBy: null,
-            offset: null
+            offset: null,
+            processObjets: true
         };
         if (typeof opt == "undefined")
             opt = defaultOpt;
@@ -678,71 +703,81 @@ class TdaoMysql extends TdaoBase_1.TdaoBase {
             orderBy: opt.orderBy
         };
         return this.getSearchQuery(opt)
-            .then(function (q) {
+            .then((q) => {
             query = q;
-            return this.query(q.sql);
-        }.bind(this))
-            .then(function (result) {
-            return this._processObjects(result, query.resultFields);
-        }.bind(this))
-            .then(function (result) {
+            let sql = "SELECT " + query.sqlSelectFields + " from " + this.viewTable;
+            if (query.where)
+                sql += " WHERE " + query.where;
+            if (query.groupBy)
+                sql += " GROUP BY " + query.groupBy;
+            if (query.orderBy)
+                sql += " ORDER BY " + query.orderBy;
+            if (query.limit)
+                sql += " LIMIT " + query.limit;
+            if (query.offset)
+                sql += " OFFSET " + query.offset;
+            return this.query(sql);
+        })
+            .then((result) => {
+            if (opt.processObjets)
+                return this._processObjects(result, query.resultFields);
+            else
+                return result;
+        })
+            .then((result) => {
             r.data = result;
         })
-            .then(function (result) {
-            return this.getRecordsCount();
-        }.bind(this))
-            .then(function (total) {
+            .then((result) => {
+            return this.getSearchTotalRecordCount(opt);
+        })
+            .then((total) => {
             r.total = total;
             if ((opt.limit != null) || (opt.offset != null) || query.where)
                 return this.getRecordsCount(query.where);
             else
                 return Promise.resolve(r.data.length);
-        }.bind(this))
-            .then(function (resultCount) {
+        })
+            .then((resultCount) => {
             r.resultCount = resultCount;
             r.limit = query.limit;
             r.offset = query.offset;
             r.groupBy = query.groupBy;
             r.orderBy = query.orderBy;
             return r;
-        }.bind(this));
+        });
     }
-    _processObjects(objects) {
-        return new Promise((resolve, reject) => {
-            if (objects != null) {
-                let fields;
-                this.getFields("view")
-                    .then(function (result) {
-                    fields = result;
-                    try {
-                        for (var i = 0; i < objects.length; i++) {
-                            var obj = objects[i];
-                            for (var k in obj) {
-                                if (this.viewfieldsByName[k]) {
-                                    if (obj[k] != null) {
-                                        var type = this.viewfieldsByName[k].Type;
-                                        if ((type == "bit(1)") && (typeof obj[k] == "object")) {
-                                            obj[k] = (obj[k][0] === 1);
-                                        }
-                                        else if (typeof obj[k] == "string") {
-                                            if ((type == "json") || (this.jsonFields && this.jsonFields[k]))
-                                                obj[k] = JSON.parse(obj[k]);
-                                        }
-                                    }
+    getSearchTotalRecordCount(opt) {
+        return this.getRecordsCount();
+    }
+    _processObjects(objects, resultFields) {
+        if (objects != null) {
+            let fields;
+            return this.getFields("view")
+                .then((result) => {
+                fields = result;
+                for (var i = 0; i < objects.length; i++) {
+                    var obj = objects[i];
+                    for (var k in obj) {
+                        if (this.viewfieldsByName[k]) {
+                            if (obj[k] != null) {
+                                var type = this.viewfieldsByName[k].Type;
+                                if ((type == "bit(1)") && (typeof obj[k] == "object")) {
+                                    obj[k] = (obj[k][0] === 1);
+                                }
+                                else if (typeof obj[k] == "string") {
+                                    if ((type == "json") || (this.jsonFields && this.jsonFields[k]))
+                                        obj[k] = JSON.parse(obj[k]);
                                 }
                             }
                         }
-                        resolve(this.processObjects(objects, fields));
                     }
-                    catch (err) {
-                        reject(err);
-                    }
-                }.bind(this));
-            }
-            else {
-                resolve(objects);
-            }
-        });
+                }
+                return this.processObjects(objects, fields);
+            });
+        }
+        else {
+            return Promise.resolve(objects);
+        }
     }
     processObjects(objects, fields) {
         return Promise.resolve(objects);
