@@ -64,7 +64,7 @@
     "mysql": "^2.16.0",
     "node-cache": "^4.1.1",
     "os-utils": "0.0.14",
-    "pem": "^1.13.1",
+    "pem": "^1.13.2",
     "portscanner": "^2.2.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
