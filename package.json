@@ -59,7 +59,7 @@
     "http-errors": "^1.7.1",
     "ioredis": "^3.2.2",
     "logrotator": "^1.1.0",
-    "moment": "^2.22.2",
+    "moment": "^2.29.4",
     "morgan": "^1.9.1",
     "mysql": "^2.16.0",
     "node-cache": "^4.1.1",
